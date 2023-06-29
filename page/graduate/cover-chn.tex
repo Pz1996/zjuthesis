@@ -52,7 +52,7 @@
 
 \begin{center}
     \bfseries \zihao{-2}
-    \begin{tabularx}{.8\textwidth}{>{\fangsong}l X<{\centering}}
+    \begin{tabularx}{\textwidth}{>{\fangsong}l X<{\centering}}
         % If titles are too long for one row, please manually hardcode them in
         % multiple lines, as the english title example here.
         \ifthenelse{\equal{\TitleLines}{1}}
@@ -66,7 +66,7 @@
             中文论文题目：&  \uline{\hfill \fangsong \TitleLineOne{} \hfill} \\
             ~            & \uline{\hfill \fangsong \TitleLineTwo{} \hfill} \\
         }
-
+        
         \ifthenelse{\equal{\TitleEngLines}{1}}
         {
             % TitleEngLines == 1
@@ -75,11 +75,18 @@
         }
         {
             % TitleEngLines == 2
-            英文论文题目：&  \underline{\hfill \TitleEngLineOne{} \hfill} \\
-            ~            &  \underline{\hfill \TitleEngLineTwo{} \hfill} \\
+            英文论文题目：&  \uline{\hfill\TitleEngLineOne{}\hfill} \\
+            ~            &  \uline{\hfill\TitleEngLineTwo{}\hfill} \\
         }
     \end{tabularx}
 \end{center}
+
+
+
+% {\fontsize{16pt}{\baselineskip}\fontfamily{Times New Roman}\selectfont 
+% \uline{This \textbf{te}x}t.
+% }
+
 
 \ifthenelse{\equal{\DepartmentLines}{1}}
 {

@@ -1,0 +1,50 @@
+\chapter{激进的极大二分团枚举剪枝方法}
+\label{ch:aggressive_mbe}
+
+\section{本章介绍}
+\section{背景知识}
+用于极大二分团枚举的集合枚举树
+
+现有优化方法分析
+
+
+\begin{table} 
+
+  \caption{基于集合枚举树的极大二分团枚举的现有优化方法}
+  \label{tbl:sota}
+  %\normalsize
+  \centering
+  
+  \begin{tabular}{|c|p{10cm}|}\toprule
+    \hline
+    \textbf{优化方法} & \multicolumn{1}{c|}{\textbf{相关工作}} \\ \hline
+优化顶点的遍历顺序~\cite{iMBEA14,PMBE20,ooMBE22} & 在基于集合枚举树的枚举方法中，可以自由选择顶点的遍历顺序。Zhang等人按顶点的邻居数量进行升序排序~\cite{iMBEA14}。Abidi等人利用索引结构CDAG，按逆拓扑顺序排序~\cite{PMBE20}。Chen等人利用单边顺序控制候选顶点的数量上限，按单边顺序排序~\cite{ooMBE22}。\\ \hline
+剪枝优化策略~\cite{iMBEA14,PMBE20,ooMBE22} & 利用运行时候选顶点间的内在联系，对即将生成无效二分团的候选顶点进行裁剪。Zhang等人裁剪与正在遍历顶点邻居相同的候选顶点~\cite{iMBEA14}。Abidi等人建立全局索引结构CDAG，利用枢纽顶点与其他顶点的包含关系进行剪枝~\cite{PMBE20}。Chen等人提出批量枢纽技术，对无效分支进行批量裁剪~\cite{ooMBE22}。\\ \hline
+并行优化策略~\cite{mapreduceMBE16,parMBE18} & 基于分布式集群或多核CPU实现的极大二分团枚举并行优化。Mukherjee等人利用MapReduce实现了分布式枚举算法，但多节点通信开销可能降低性能~\cite{mapreduceMBE16}。Das等人利用多核CPU实现了多线程枚举算法，但性能受限于CPU计算核数量~\cite{parMBE18}。 \\ \hline
+
+  \end{tabular}
+    
+\end{table}
+
+
+\section{研究动机}
+
+\section{AMBEA算法设计与实现}
+
+\subsection{激进的集合枚举树}
+
+\subsection{激进的顶点融合剪枝方法}
+
+\subsection{AMBEA算法}
+
+\section{实验评估}
+
+\subsection{实验设置}
+
+\subsection{整体评估}
+
+\subsection{细分评估}
+
+\subsection{敏感性测试}
+
+\section{本章小结}

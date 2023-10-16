@@ -39,25 +39,22 @@
 \usepackage{amsthm}
 \usepackage{chngcntr}
 \usepackage{setspace}
+\usepackage{subfig}
+\usepackage{pifont}
 
 \renewcommand{\algorithmicrequire}{\textbf{输入:}}
 \renewcommand{\algorithmicensure}{\textbf{输出:}}
-% \setstretch{0.8} % 设置行间距系数
 
-% \setCJKmainfont{SourceHanSerifSC-Regular.otf}[
-%     BoldFont = SourceHanSerifSC-Bold.otf,
-%     ItalicFont = SourceHanSerifSC-Regular.otf,
-%     BoldItalicFont = SourceHanSerifSC-Bold.otf
-% ]
-
-% \newfontfamily\fsitalic{SourceHanSerifSC-Regular.otf}[AutoFakeSlant=0.2]
-
-
-% \setCJKmainfont{FandolFang-Regular.otf}
-% \newfontfamily\fsitalic{FandolKai-Regular.otf}[ItalicFont={FandolKai-Regular.otf}]
-
+\theoremstyle{definition}
 \newtheorem{definition}{定义}[chapter]
 \counterwithin{definition}{chapter}
 
+\theoremstyle{plain}
 \newtheorem{example}{例}[chapter]
 \counterwithin{example}{chapter}
+
+\theoremstyle{definition}
+\newtheorem{theorem}{定理}[chapter]
+\counterwithin{theorem}{chapter}
+
+\newcommand{\Num}[1]{\uppercase\expandafter{\romannumeral#1}}

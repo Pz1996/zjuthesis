@@ -1,12 +1,12 @@
 #! /usr/bin/env python
-xlabelTextSize = 14
-ylabelTextSize = 14
-xtitleTextSize = 14
-ytitleTextSize = 14
+xlabelTextSize = 10
+ylabelTextSize = 10
+xtitleTextSize = 10
+ytitleTextSize = 10
 ytitleShiftX = 0
 ytitleShiftY = 0
 xlableShiftY = 8
-legendTextSize = 14
+legendTextSize = 10
 
 styles = [
     ['blue',         'triangle',False],
@@ -30,7 +30,7 @@ fig_colors_light= ['lightcoral', 'mintcream', 'antiquewhite', 'azure','lavenderb
 fig_colors_multigpu=['wheat', 'darkseagreen','lightblue', 'lightcoral','antiquewhite','mintcream','mistyrose','azure']
 
 
-pictureWidthShort = 250
+pictureWidthShort = 150
 pictureWidthLong = 540
 pictureHeight = 82
 

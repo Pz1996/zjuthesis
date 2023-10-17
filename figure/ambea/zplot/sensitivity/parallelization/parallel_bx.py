@@ -36,7 +36,7 @@ t = table(file='parallel_bx.data')
 # print(min_value)
 
 d = drawable(canvas=c, xrange=[3, 120],
-             yrange=[10, 250000], dimensions=[pictureWidthShort*0.8, pictureHeight], coord=[40,30], yscale='log10', xscale='log2')
+             yrange=[8, 200000], dimensions=[pictureWidthShort*0.8, pictureHeight], coord=[40,30], yscale='log10', xscale='log2')
 
 
 axis(drawable=d, style='box', ticstyle='in', dominortics=False,
@@ -48,11 +48,11 @@ axis(drawable=d, style='box', ticstyle='in', dominortics=False,
      xlabelfontsize=xlabelTextSize,
      ylabelfontsize=ylabelTextSize,
      xtitlesize=xtitleTextSize,
-     xaxisposition=25,
+     xaxisposition=20,
      xlabelrotate=0,
      ytitlesize=ytitleTextSize,
      linewidth=0.8, #yauto=['', '', 4],
-     ymanual=[['100', 100],['1k',1000],['10k',10000],['100k',100000]],
+     ymanual=[['10',10],['100', 100],['1k',1000],['10k',10000],['100k',100000]],
      xmanual=[['4', 4],['8', 8], ['16', 16],['32', 32],['64', 64],['96',96]]
      )
 
@@ -78,8 +78,8 @@ for idx in range(len(series_list)):
                 legend=L, legendtext=series_name[idx])
 
 
-L.draw(canvas=c, coord=[d.left()+13, d.top()+10], width=5, height=5, fontsize=legendTextSize, skipnext=1, skipspace=120)
-L_line.draw(canvas=c, coord=[d.left()+10, d.top()+10], width=10, height=15, fontsize=legendTextSize, skipnext=1, skipspace=120)
+L.draw(canvas=c, coord=[d.left()+3, d.top()+10], width=5, height=5, fontsize=legendTextSize, skipnext=1, skipspace=70)
+L_line.draw(canvas=c, coord=[d.left(), d.top()+10], width=10, height=15, fontsize=legendTextSize, skipnext=1, skipspace=70)
 
 
 # ----- drawing circle

@@ -29,14 +29,14 @@ styles = [
 # NormalizedTextSize = 4
 
 ctype = 'pdf' if len(sys.argv) < 2 else sys.argv[1]
-c = canvas(ctype, 'parallel_so', dimensions=[400, 300])
+c = canvas(ctype, 'parallel_im', dimensions=[400, 300])
 
-t = table(file='parallel_so.data')
+t = table(file='parallel_im.data')
 
 # print(min_value)
 
 d = drawable(canvas=c, xrange=[3, 120],
-             yrange=[2, 50000], dimensions=[pictureWidthShort*0.8, pictureHeight], coord=[40,30], yscale='log10', xscale='log2')
+             yrange=[0.8, 20000], dimensions=[pictureWidthShort*0.8, pictureHeight], coord=[40,30], yscale='log10', xscale='log2')
 
 
 axis(drawable=d, style='box', ticstyle='in', dominortics=False,
@@ -48,11 +48,11 @@ axis(drawable=d, style='box', ticstyle='in', dominortics=False,
      xlabelfontsize=xlabelTextSize,
      ylabelfontsize=ylabelTextSize,
      xtitlesize=xtitleTextSize,
-     xaxisposition=5,
+     xaxisposition=2,
      xlabelrotate=0,
      ytitlesize=ytitleTextSize,
      linewidth=0.8, #yauto=['', '', 4],
-     ymanual=[['10',10],['100', 100],['1k',1000],['10k',10000]],
+     ymanual=[['1',1],['10',10],['100', 100],['1k',1000],['10k',10000]],
      xmanual=[['4', 4],['8', 8], ['16', 16],['32', 32],['64', 64],['96',96]]
      )
 

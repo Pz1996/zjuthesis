@@ -78,8 +78,8 @@ for idx in range(len(series_list)):
                 legend=L, legendtext=series_name[idx])
 
 
-L.draw(canvas=c, coord=[d.left()+13, d.top()+10], width=5, height=5, fontsize=legendTextSize, skipnext=1, skipspace=120)
-L_line.draw(canvas=c, coord=[d.left()+10, d.top()+10], width=10, height=15, fontsize=legendTextSize, skipnext=1, skipspace=120)
+L.draw(canvas=c, coord=[d.left()+3, d.top()+10], width=5, height=5, fontsize=legendTextSize, skipnext=1, skipspace=70)
+L_line.draw(canvas=c, coord=[d.left(), d.top()+10], width=10, height=15, fontsize=legendTextSize, skipnext=1, skipspace=70)
 
 
 # ----- drawing circle

@@ -66,7 +66,7 @@
 \subsection{被动的顶点合并剪枝方法}
 \label{subsec:pmp}
 
-被动的顶点合并剪枝方法是一种由Zhang等人提出的简单而有效的剪枝技术~\cite{iMBEA14}。它的核心思想是合并枚举过程中具有相同局部邻居的候选顶点，以达到剪枝的效果。
+被动的顶点合并剪枝方法是一种由Zhang等人提出的简单而有效的剪枝技术~\cite{iMBEA14}。它的基本思想是合并枚举过程中具有相同局部邻居的候选顶点，以达到剪枝的效果。
 
 具体而言，该方法针对每个节点$(L,R,C)$和集合$C$内的候选顶点$v^*$，会尝试访问$v^*$生成的新节点，并检查该新节点是否产生极大二分团。如果是，则该方法会合并集合$C$内满足$N(v') \cap L = N(v^*) \cap L$的候选顶点$v'$，并从集合$C$中移除这些顶点。由于这些顶点所对应的二分团都可以通过添加$v^*$来扩展，因此它们都不是极大二分团，我们可以安全地将这些顶点移除以减少搜索空间。然而，这种被动的顶点合并剪枝方法存在局限性。它只有在$v^*$生成的新节点能够产生极大二分团的情况下才能触发剪枝效果。当$v^*$生成的新节点无法通过节点检查时，类似地，这些顶点$v'$生成的新节点也无法通过节点检查，因此会分别带来节点检查开销，影响剪枝效率。
 
@@ -328,9 +328,9 @@ ASE树的主要贡献包括以下两点：
   我们用一个例子来展示AMP方法。接着例~\ref{example:ase}，图~\ref{fig:amp}展示了图~\ref{fig:ase}中节点$m$在不同方法下的生成过程。为了方便比较，我们假设$C$中包含了$V$中的所有顶点。在示意图中，我们将每个顶点的邻居在矩形框中表示，并用蓝色标出了局部邻居。
 
   图~\ref{subfig:no_amp}展示了基本方法按顺序逐个计算候选顶点的局部邻居。而图~\ref{subfig:amp}展示了AMP方法，它使用$L'$中的顶点按顺序将候选顶点划分为多个组。  在步骤\Num1中, 由于$u_1$与$v_1$、$v_3$和$v_4$相连但与其他顶点不相连，$C$被划分为两个组。在步骤\Num3中, 由于$u_1$与$v_3$和$v_4$相连但与$v_1$不相连，组$\{v_1, v_3, v_4\}$被进一步划分为两个组。
-在步骤\Num4中，由于$v_2$、$v_5$和$v_6$具有相同的局部邻居$\{v_5\}$，我们将这些顶点主动合并。因此，使用AMP方法，节点$m$可以剪除由$v_5$和$v_6$生成的节点$x_1$和$x_2$。
+在步骤\Num4中，由于$v_2$、$v_5$和$v_6$具有相同的局部邻居$\{v_5\}$，我们将这些顶点主动合并。因此，使用AMP方法，节点$m$可以裁剪由$v_5$和$v_6$生成的节点$x_1$和$x_2$。
 
-相比之下，被动合并的剪枝方法无法剪除节点$x_2$，因为虽然$v_5$和$v_6$具有相同的局部邻居，但由于节点$v_5$未通过节点检查，被动的顶点合并剪枝方法不会触发。
+相比之下，被动合并的剪枝方法无法裁剪节点$x_2$，因为虽然$v_5$和$v_6$具有相同的局部邻居，但由于节点$v_5$未通过节点检查，被动的顶点合并剪枝方法不会触发。
 
 \label{example:amp}
 \end{example}
@@ -501,9 +501,9 @@ AMP方法的贡献主要包括以下两点：
 
 \textbf{实验环境设置。} 本节的全部实验均在一台配备有4个Intel Xeon(R) Gold 5318Y 2.10GHz CPU和128GB内存的服务器上完成，其中每个CPU拥有24个计算核心。本次实验环境的操作系统为Linux kernel-5.4.0。在没有特殊说明的情况下，算法默认使用单个计算核心串行执行。
 
-\textbf{比较对象。} 实验的主要比较对象是5个最先进的基于集合枚举树的极大二分团枚举算法：MBEA~\cite{iMBEA14}、iMBEA~\cite{iMBEA14}、FMBE~\cite{parMBE18}、PMBE~\cite{PMBE20}以及ooMBEA~\cite{ooMBE22}。此外，在并行性敏感分析中，我们还与最先进的并行极大二分团枚举算法ParMBE进行比较~\cite{parMBE18}。我们获取到了所有对比对象的源代码。为了公平比较，我们在一个统一的框架下重新实现和优化了算法MBEA、iMBEA、FMBE和PMBE的C++代码。由于ooMBEA和parMBE算法的源代码已深度优化，我们没有重新实现这两个算法。此外，为了深入评估本章提到的技术点，我们实现了一些算法变体，并在对应实验中详细描述。
+\textbf{比较算法。} 实验的主要比较算法是5个最先进的基于集合枚举树的极大二分团枚举算法：MBEA~\cite{iMBEA14}、iMBEA~\cite{iMBEA14}、FMBE~\cite{parMBE18}、PMBE~\cite{PMBE20}以及ooMBEA~\cite{ooMBE22}。此外，在并行性敏感分析中，我们还与最先进的并行极大二分团枚举算法ParMBE进行比较~\cite{parMBE18}。我们获取到了所有对比对象的源代码。为了公平比较，我们在一个统一的框架下重新实现和优化了算法MBEA、iMBEA、FMBE和PMBE的C++代码。由于ooMBEA和parMBE算法的源代码已深度优化，我们没有重新实现这两个算法。此外，为了深入评估本章提到的技术点，我们实现了一些算法变体，并在对应实验中详细描述。
 
-\input{text/tab_dataset} 
+\input{text/tab_dataset_ambea} 
 
 \textbf{数据集。} 为准确评估本章提出的技术，我们同时使用了真实数据集和合成数据集。表~\ref{tbl:datasets}详细展示了实验数据集的统计信息。真实数据集来源于KONECT仓库~\cite{konect}，涵盖了不同的应用场景。上半部分的表格显示了真实数据集的来源。而下半部分的表格展示了合成数据集，这些数据集是在大数据集LiveJournal ($|U|$=7,489,073, $|V|$=3,201,203, $|E|$=112,307,385)上分别采样5\%、10\%、15\%、20\%和25\%的边所生成，记作LJ5、LJ10、LJ15、LJ20和LJ25。大数据集LiveJournal也来自于KONECT仓库。鉴于极大二分团枚举算法的执行时间与二分图中极大二分团的数量相关，因此我们按照极大二分团的数量对数据集进行了升序排列。
 
@@ -515,7 +515,7 @@ AMP方法的贡献主要包括以下两点：
 \begin{figure} [H]
   \centering
   \includegraphics[width=\linewidth]{ambea/overall_time}
-  \caption{整体运行时间评估 (对数形式)}
+  \caption{AMBEA整体运行时间评估 (对数形式)}
   \label{fig:ambea_overall_time}
 \end{figure}
 
@@ -524,7 +524,7 @@ AMP方法的贡献主要包括以下两点：
 \begin{figure} [H]
   \centering
   \includegraphics[width=\linewidth]{ambea/overall_memory}
-  \caption{整体内存使用评估 (对数形式)}
+  \caption{AMBEA整体内存使用评估 (对数形式)}
   \label{fig:ambea_overall_memory}
 \end{figure}
 
@@ -533,7 +533,7 @@ AMP方法的贡献主要包括以下两点：
 \begin{figure} [H]
   \centering
   \includegraphics[width=\linewidth]{ambea/overall_prune}
-  \caption{整体剪枝效率评估 (对数形式)}
+  \caption{AMBEA整体剪枝效率评估 (对数形式)}
   \label{fig:ambea_overall_prune}
 \end{figure}
 
@@ -607,7 +607,7 @@ AMP方法的贡献主要包括以下两点：
 \begin{figure} [H]
 	\centering
 	\includegraphics[width=0.7\linewidth]{ambea/scalability}
-	\caption{算法扩展性敏感性分析 (对数形式表示运行时间)}
+	\caption{算法扩展性敏感性分析 (对数形式)}
 	\label{fig:ambea_exp_scalability}
 \end{figure}
 
@@ -637,7 +637,7 @@ AMP方法的贡献主要包括以下两点：
 	}
   
 
-	\caption{算法并行性敏感性分析 (对数形式表示运行时间)}
+	\caption{算法并行性敏感性分析 (对数形式)}
 	\label{fig:ambea_paral}
 \end{figure}
 

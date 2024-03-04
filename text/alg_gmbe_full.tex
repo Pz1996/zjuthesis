@@ -1,0 +1,58 @@
+\begin{algorithm} [H]
+  \begin{algorithmic}[1]
+    \normalsize
+
+    \STATE $processing\_v$是一个全局变量，初始化为0;
+    \STATE $SM\_task\_queue$是用于负载均衡的全局并发队列 ;
+  
+    \renewcommand{\algorithmicwhile}{\textbf{procedure}}
+    \renewcommand{\algorithmicdo}{\textbf{:}}
+
+    \WHILE{\textsf{warp\_kernel}}
+    \renewcommand{\algorithmicwhile}{\textbf{while}}
+    \renewcommand{\algorithmicdo}{\textbf{do}}
+      \WHILE{\textbf{true}}
+        \IF{$SM\_task\_queue$非空}
+          \STATE $(L,R,C) \leftarrow SM\_task\_queue$\textsf{.dequeue}$()$ ;
+        \ELSE
+          \STATE $v_s$ = \textsf{atomicInc}$(processing\_v)$
+          \IF{$v_s \in V$}
+            \STATE $L \leftarrow N(v_s); R\leftarrow\{v_s\}; C\leftarrow \emptyset $;
+            \FOR{$v_c \in N_2(v_s)$}
+              \IF{$L\cap N(v_c) = L$}
+                \STATE $R \leftarrow R \cup \{v_c\}$;
+              \ELSIF{$v_c$的索引在$v_s$之后}
+                \STATE $C \leftarrow C \cup \{v_c\}$;
+              \ENDIF
+            \ENDFOR
+          \ELSE
+            \STATE \textbf{return};
+          \ENDIF
+        \ENDIF
+
+        \IF {$R = \Gamma(L)$}
+          \IF {$\min\{|L|,|C|\}\times|C| >$ 数量边界，并且$\min\{|L|,|C|\} >$ 高度边界 }
+            \FOR{$v_t \in C$}
+              \STATE $L_t \leftarrow N(v_t); R_t\leftarrow R; C_t\leftarrow \emptyset $;
+              \FOR{$v_c \in C$}   
+                \IF {$L_t \cap N(v_c) = L_t$}
+                  \STATE $R_t \leftarrow R_t \cup \{v_c\}$;
+                \ELSIF{$L_t \cap N(v_c)$ 非空}
+                  \STATE $C_t \leftarrow C_t \cup \{v_c\}$;
+                \ENDIF
+              \ENDFOR
+              \STATE $SM\_task\_queue$\textsf{.enqueue}$((L_t, R_t, C_t))$
+              \STATE $C \leftarrow C \setminus \{v_t\}$\;
+            \ENDFOR
+          \ELSE
+            \STATE \textsf{iteratively\_search}$(L,R,C)$;
+          \ENDIF
+
+        \ENDIF
+      \ENDWHILE
+    \ENDWHILE 
+
+  \end{algorithmic}
+  \caption{负载感知的基于任务的调度方法}
+  \label{alg:gmbe_task_full}
+\end{algorithm}

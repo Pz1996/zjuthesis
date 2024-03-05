@@ -40,7 +40,7 @@
   number    = {6},
   pages     = {317--321},
   year      = {2014},
-  publisher = {Elsevier}
+
 }
 
 @inproceedings{dangerous05,
@@ -391,6 +391,14 @@
   organization = {Springer}
 }
 
+@article{MBEU23,
+  title={Efficient Maximal Biclique Enumeration on Large Uncertain Bipartite Graphs},
+  author={Wang, Jianhua and Yang, Jianye and Ma, Ziyi and Zhang, Chengyuan and Yang, Shiyu and Zhang, Wenjie},
+  journal={TKDE},
+  year={2023},
+  publisher={IEEE}
+}
+
 @article{MCEparallel20,
   title     = {Shared-memory parallel maximal clique enumeration from static and dynamic graphs},
   author    = {Das, Apurba and Sanei-Mehri, Seyed-Vahid and Tirthapura, Srikanta},
@@ -510,13 +518,45 @@
   year      = {2020}
 }
 
-@article{PQ21,
-  title     = {(p, q)-biclique counting and enumeration for large sparse bipartite graphs},
-  author    = {Yang, Jianye and Peng, Yun and Ouyang, Dian and Zhang, Wenjie and Lin, Xuemin and Zhao, Xiang},
-  journal   = {The VLDB Journal},
-  pages     = {1--25},
-  year      = {2023},
-  publisher = {Springer}
+@article{Pqbiclique21,
+  author    = {Jianye Yang and
+               Yun Peng and
+               Wenjie Zhang},
+  title     = {(p, q)-biclique Counting and Enumeration for Large Sparse Bipartite
+               Graphs},
+  journal   = {PVLDB},
+  volume    = {15},
+  number    = {2},
+  pages     = {141--153},
+  year      = {2021},
+}
+
+@article{Pqbiclique23,
+  title={(p, q)-biclique counting and enumeration for large sparse bipartite graphs},
+  author={Yang, Jianye and Peng, Yun and Ouyang, Dian and Zhang, Wenjie and Lin, Xuemin and Zhao, Xiang},
+  journal={The VLDB Journal},
+  pages={1--25},
+  year={2023},
+  publisher={Springer}
+}
+
+@article{Pq23,
+  title={Efficient Biclique Counting in Large Bipartite Graphs},
+  author={Ye, Xiaowei and Li, Rong-Hua and Dai, Qiangqiang and Qin, Hongchao and Wang, Guoren},
+  journal={Proceedings of the ACM on Management of Data},
+  volume={1},
+  number={1},
+  pages={1--26},
+  year={2023},
+  publisher={ACM New York, NY, USA}
+}
+
+@inproceedings{BicliqueCommunity23,
+  title={Index-based biclique percolation communities search on bipartite graphs},
+  author={Chen, Zi and Zhao, Yiwei and Yuan, Long and Lin, Xuemin and Wang, Kai},
+  booktitle={ICDE},
+  pages={2699--2712},
+  year={2023}
 }
 
 @article{Proof09,
@@ -548,6 +588,22 @@
   volume  = {2021},
   pages   = {Article--ID 64},
   year    = {2021}
+}
+
+@article{WeightMEB22,
+  title={Efficient maximum edge-weighted biclique search on large bipartite graphs},
+  author={Wang, Jianhua and Yang, Jianye and Zhang, Chengyuan and Lin, Xuemin},
+  journal={TKDE},
+  year={2022},
+  publisher={IEEE}
+}
+
+@article{WeightMBB22,
+  title={Finding the Maximum $ k $-Balanced Biclique on Weighted Bipartite Graphs},
+  author={Zhao, Yiwei and Chen, Zi and Chen, Chen and Wang, Xiaoyang and Lin, Xuemin and Zhang, Wenjie},
+  journal={TKDE},
+  year={2022},
+  publisher={IEEE}
 }
 
 @inproceedings{SEtree92,
@@ -593,6 +649,17 @@
   year         = {2022},
   organization = {IEEE}
 }
+
+@inproceedings{Sun23,
+  title={Efficient maximum signed biclique identification},
+  author={Sun, Renjie and Chen, Chen and Wang, Xiaoyang and Zhang, Wenjie and Zhang, Ying and Lin, Xuemin},
+  booktitle={ICDE},
+  pages={1313--1325},
+  year={2023}
+}
+
+
+
 
 @www{tikz,
   title  = {tikz宏包},
@@ -690,7 +757,6 @@ author = {Shi, Tianhui and Zhai, Jidong and Wang, Haojie and Chen, Qiqian and Zh
 title = {GraphSet: High Performance Graph Mining through Equivalent Set Transformations},
 year = {2023},
 isbn = {9798400701092},
-doi = {10.1145/3581784.3613213},
 booktitle = {Proceedings of the International Conference for High Performance Computing, Networking, Storage and Analysis (SC)},
 articleno = {32},
 numpages = {14},
@@ -719,4 +785,105 @@ location = {Denver, CO, USA},
   howpublished = {\url{http://snap.stanford.edu/data}},
   month        = jun,
   year         = 2014
+}
+
+@inproceedings{MCEGPUBitset13,
+  title={GPU implementation of MCE approach to finding near neighbourhoods},
+  author={Alusaifeer, Tariq and Ramanna, Sheela and Henry, Christopher J and Peters, James},
+  booktitle={International Conference on Rough Sets and Knowledge Technology},
+  pages={251--262},
+  year={2013}
+}
+
+@inproceedings{MCEGPUdpp17,
+  title={Maximal clique enumeration with data-parallel primitives},
+  author={Lessley, Brenton and Perciano, Talita and Mathai, Manish and Childs, Hank and Bethel, E Wes},
+  booktitle={2017 IEEE 7th Symposium on Large Data Analysis and Visualization (LDAV)},
+  pages={16--25},
+  year={2017}
+}
+
+@article{SubgraphGpu22,
+  title={Exploiting reuse for GPU subgraph enumeration},
+  author={Guo, Wentian and Li, Yuchen and Tan, Kian-Lee},
+  journal={IEEE Transactions on Knowledge and Data Engineering (TKDE)},
+  volume={34},
+  number={9},
+  pages={4231--4244},
+  year={2020}
+}
+
+@mastersthesis{MBEchinese19,
+author = {何宇},
+title = {面向大规模二分图的团枚举算法研究},
+school = {深圳大学},
+year = {2019}
+}
+
+@mastersthesis{pqchinese22,
+author = {蒋意浩},
+title = {大规模二分图上（m,n）二分团计数问题研究},
+school = {东华大学},
+year = {2022}
+}
+
+@mastersthesis{skylinechinese23,
+author = {李爽},
+title = {多值属性二部图选择最优组：天际线二部团的研究与实现},
+school = {广州大学},
+year = {2023}
+}
+
+@article{MCEreview22,
+author = {许绍显 and 廖小飞 and 邵志远 and 华强胜 and 金海},
+title = {图数据中极大团枚举问题的求解:研究现状与挑战},
+journal = {中国科学:信息科学},
+volume = {52},
+number = {05},
+pages = {784-803},
+year = {2022},
+issn = {1674-7267},
+doi ={}
+}
+
+@mastersthesis{MCEchinese21,
+author = {王恒},
+title = {概率图上Top-K极大团枚举问题研究},
+school = {东华大学},
+year = {2021}
+}
+
+@article{MCEchinese20,
+author = {杜明 and 钟鹏 and 周军锋},
+title = {一种面向不确定极大团枚举的高效验证算法},
+journal = {智能计算机与应用},
+volume = {10},
+number = {03},
+pages = {14-20},
+year = {2020},
+issn = {2095-2163},
+doi ={}
+}
+
+@article{MCEchinese17,
+author = {何琨 and 邹晟昊 and 周建荣},
+title = {大规模稀疏图的极大团枚举算法},
+journal = {华中科技大学学报(自然科学版)},
+volume = {45},
+number = {12},
+pages = {1-6},
+year = {2017},
+issn = {1671-4512}
+}
+
+@article{MBEchinese17,
+author = {邹凌君 and 陈崚 and 戴彩艳},
+title = {基于广义后缀树的二分网络社区挖掘算法},
+journal = {计算机科学},
+volume = {44},
+number = {07},
+pages = {221-226},
+year = {2017},
+issn = {1002-137X},
+doi ={}
 }

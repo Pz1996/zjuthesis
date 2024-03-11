@@ -31,6 +31,6 @@ fig_colors_multigpu=['wheat', 'darkseagreen','lightblue', 'lightcoral','antiquew
 
 
 pictureWidthShort = 250
-pictureWidthLong = 560
+pictureWidthLong = 360
 pictureHeight = 82
 

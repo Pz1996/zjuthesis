@@ -25,7 +25,7 @@
 \begin{figure} 
   \center
     \vspace{0.1in}
-		\includegraphics[width=0.8\linewidth]{order_inc}
+		\includegraphics[width=0.75\linewidth]{order_inc}
     \vspace{0.1in}
 	\caption{根据顶点的邻居数量递增排序}
 	\label{fig:order_inc}
@@ -35,7 +35,7 @@
 \begin{figure}
   \center
   \vspace{0.1in}
-    \includegraphics[width=0.8\linewidth]{order_dec}
+    \includegraphics[width=0.75\linewidth]{order_dec}
     \vspace{0.1in}
   \caption{根据顶点的邻居数量递减排序}
 	\label{fig:order_dec}
@@ -145,7 +145,7 @@
 具体而言，ASE树保留了传统集合枚举树的节点结构，并设计了激进的节点生成方法和节点检查方法。\textbf{节点生成的过程允许使用所有顶点来扩展新节点的二分团，因此每个节点都会产生一个极大二分团}，但是不同节点对应的二分团可能重复。为了消除全部重复二分团，我们利用父子节点的联系设计了新的节点检查规则。我们对ASE树的节点生成以及节点检查规则进行了规范化描述:
 
 \begin{itemize}
-  \item 节点生成：ASE树从根节点$(U,\emptyset,V)$ 开始遍历。对于当前节点$(L,R,C)$，ASE树按顺序访问$C$集合中的每个候选顶点$v'$以生成一个新的节点$(L',R',C')$。集合$L'$包含集合$L$和集合$N(v')$中的共同顶点。集合$R'$包含所有与集合$L'$内顶点均相连的顶点。集合$C'$包含集合$C$中与集合$L'$内顶点部分相连的且未被访问的顶点。
+  \item 节点生成：ASE树从根节点$(U,\emptyset,V)$ 开始遍历。对于当前节点$(L,R,C)$，ASE树按顺序访问集合$C$中的每个候选顶点$v'$以生成一个新的节点$(L',R',C')$。集合$L'$包含集合$L$和集合$N(v')$中的共同顶点。集合$R'$包含所有与集合$L'$内顶点均相连的顶点。集合$C'$包含集合$C$中与集合$L'$内顶点部分相连的且未被访问的顶点。
   \item 节点检查：假设当前节点$(L,R,C)$选择$v'$生成新节点$(L',R',C')$且当前节点的$\vec{v}$是$v$，新节点通过节点检查并输出一个极大二分团当且仅当满足以下全部条件：
   
   \begin{itemize}
@@ -234,9 +234,9 @@
 \end{algorithm}
 
 
-算法~\ref{alg:ase}总结了基于ASE树的极大二分团枚举算法的基本枚举过程。该算法依次遍历$V$中的每个顶点$v_s$，并递归地调用过程\textsf{biclique\_search\_ase}(第1-3行)。这个过程描述了节点$(L,R,C)$访问候选顶点$v'$生成节点$(L',R',C')$ (第5、12-13行)并执行节点检查的过程(第6、8-11、16行)。接下来我们概述节点检查的执行过程。我们把节点$(L,R,C)$的$\vec{v}$记作$v$。由于节点$(L,R,C)$已通过节点检查，这意味着$\Gamma(R_v^-) = L$且$v$是$R$中满足$\Gamma(R_v^-) \cap N(v') = L'$的最小顶点(第19行)，因此满足条件O1。值得注意的是，ASE树支持使用简单的集合求交集运算在$\BigO{d(V)}$的时间复杂度内进行\textbf{低成本的节点检查}，而其他节点检查方法至少需要$\BigO{|E|}$的时间复杂度。根据节点的生成规则，由于$R \cup C$包含了所有与$L'$中的某些或全部顶点相连的比$v$大的顶点，因此我们知道$\overline{R}$中的顶点都比$v$小。如果$\overline{R} = \emptyset$ (第16行)，则表示在$R'$中没有比$v$小且不在$R$中的顶点，因此满足条件O2。我们使用$\overline{L}$ 来存储与$L$中的部分顶点，这部分顶点与$R'$内小于$v'$的全部顶点相连且和$v'$不相连。因此，如果$\overline{L} \neq \emptyset$ (第16行)，则说明满足条件O3。
+算法~\ref{alg:ase}总结了基于ASE树的极大二分团枚举算法的基本枚举过程。该算法依次遍历$V$中的每个顶点$v_s$，并递归地调用过程\textsf{biclique\_search\_ase}(第1-3行)。这个过程描述了节点$(L,R,C)$访问候选顶点$v'$生成节点$(L',R',C')$ (第5、12-13行)并执行节点检查的过程(第6、8-11、16行)。接下来我们概述节点检查的执行过程。我们把节点$(L,R,C)$的$\vec{v}$记作$v$。由于节点$(L,R,C)$已通过节点检查，这意味着$\Gamma(R_v^-) = L$且$v$是$R$中满足$\Gamma(R_v^-) \cap N(v') = L'$的最小顶点(第19行)，因此满足条件O1。值得注意的是，ASE树支持使用简单的集合交集运算在$O(d(V))$的时间复杂度内进行\textbf{低成本的节点检查}，而其他节点检查方法至少需要$O(|E|)$的时间复杂度。根据节点的生成规则，由于$R \cup C$包含了所有与$L'$中的某些或全部顶点相连的比$v$大的顶点，因此我们知道$\overline{R}$中的顶点都比$v$小。如果$\overline{R} = \emptyset$ (第16行)，则表示在$R'$中没有比$v$小且不在$R$中的顶点，因此满足条件O2。我们使用$\overline{L}$ 来存储与$L$中的部分顶点，这部分顶点与$R'$内小于$v'$的全部顶点相连且和$v'$不相连。因此，如果$\overline{L} \neq \emptyset$ (第16行)，则说明满足条件O3。
 
-就时间复杂度而言，由于算法中最复杂的操作涉及最多$|V|$次集合操作且每次集合操作耗时$\BigO{d(V)}$，因此ASE树中每个节点的计算时间为$\BigO{|V|d(V)}$。最终，算法~\ref{alg:ase}的时间复杂度为$\BigO{|V|\Delta(V)\beta}$，与算法~\ref{alg:se_mbe}相同。
+就时间复杂度而言，由于算法中最复杂的操作涉及最多$|V|$次集合操作且每次集合操作耗时$O(d(V))$，因此ASE树中每个节点的计算时间为$O(|V|d(V))$。最终，算法~\ref{alg:ase}的时间复杂度为$O(|V|\Delta(V)\beta)$，与算法~\ref{alg:se_mbe}相同。
 
 我们用下面的例子对该算法进行说明。
 
@@ -301,7 +301,7 @@ ASE树的主要贡献包括以下两点：
 % 通过这种合并，我们可以安全地裁剪由合并集合中较大的候选顶点产生的分支。相较于被动合并剪枝方法，AMP方法主动合并所有具有相同局部邻居的顶点，而无需依赖特定顶点，因此，在剪枝效率方面更加出色。
 根据定理~\ref{theorem:merge}和被动顶点合并剪枝方法的启发~\cite{iMBEA14}，我们发现通过主动合并具有相同局部邻居的顶点可以进一步释放剪枝潜力。具体而言，通过合并这些具有相同局部邻居的候选顶点，我们能够避免合并集合中较大的候选顶点产生的分支。相较于被动合并剪枝方法，主动合并方法无需依赖特定顶点，在剪枝效率方面更加出色。
 
-然而，尽管主动合并节点内具有相同局部邻居的顶点具有提升剪枝效率的潜力，但它同时会带来一定的计算开销。一种直接的解决方法是存储所有候选顶点的局部邻居，并对它们进行两两比较。这种方法的时间复杂度为$\BigO{|V|^2d(V)}$，即执行$\BigO{|V|^2}$次比较操作，每次比较操作的时间复杂度是$\BigO{d(V)}$。这种方法并不实用，因为它的复杂度超过了在每个节点上执行节点生成和节点检查的时间复杂度$\BigO{|V|d(V)}$。因此，设计一种高效可行的顶点合并方法具有挑战性。
+然而，尽管主动合并节点内具有相同局部邻居的顶点具有提升剪枝效率的潜力，但它同时会带来一定的计算开销。一种直接的解决方法是存储所有候选顶点的局部邻居，并对它们进行两两比较。这种方法的时间复杂度为$O(|V|^2d(V))$，即执行$O(|V|^2)$次比较操作，每次比较操作的时间复杂度是$O(d(V))$。这种方法并不实用，因为它的复杂度超过了在每个节点上执行节点生成和节点检查的时间复杂度$O(|V|d(V))$。因此，设计一种高效可行的顶点合并方法具有挑战性。
 
 为了最小化合并开销，AMP方法修改了节点生成的过程。具体而言，假设节点$(L,R,C)$访问顶点$v'$生成新节点$(L',R',C')$。现有的方法通过逐个计算候选顶点的局部邻居来产生新的候选顶点集合$C'$。与现有方法不同，AMP方法将候选顶点集合$C$视为一个整体，并对这个整体进行划分，使具有相同局部邻居的顶点落在同一分组中。开始时，所有$C$中的顶点在同一个组内。然后，依次选择$L'$中的顶点$u_l$对每个组进行划分。通过检查组内的顶点是否与传入的$u_l$相连，每个组可以被分成两个子组。因此，具有相同局部邻居的候选顶点总是放在同一组中。最终，我们主动合并同组内的具有相同局部邻居的候选顶点。我们通过例子来说明AMP方法的执行过程。
 
@@ -406,14 +406,14 @@ ASE树的主要贡献包括以下两点：
 \end{algorithm}
 
 算法~\ref{alg:amp}展示了AMP方法的主要执行过程\textsf{partition\_merge}。该过程接收原候选顶点集$C$和新集合$L'$两个输入，使用AMP方法合并具有相同局部邻居的顶点，并返回新候选顶点集合$C'$ (第6-21行)。具体而言，算法首先给$C$中每个顶点附加一个组索引属性($gid$) (第7行)，用于在动态维护的组数组$GroupArray$中检索顶点的组信息$GroupInfo$ (第8行)。其中，组信息包括输入顶点($incomming\_v$)、下个分组($next\_gid$)和局部邻居数量($ln\_size$) (第1-5行)。初始时，$GroupArray$只包含一个包含所有候选顶点的组 (第8行)。然后，算法使用$L'$中的每个顶点$u_l$迭代地对候选顶点进行分组 (第9行)。对于具有相同组索引的顶点，算法将与$u_l$相连的顶点分配到新的组中 (第10-19行)。当$u_l$不是当前组的输入顶点时，算法创建一个新的组，并将其局部邻居数量增加1 (第12-17行)。为了优化内存使用，我们建议回收没有元素的组，可以使用堆栈结构实现。最后，算法合并具有相同组索引的顶点，因为它们拥有相同的局部邻居。
-就时间复杂度而言，由于创建组、更新组信息等操作均能在常数时间完成，且在运行过程中访问每条边最多1次，所以过程\textsf{partition\_merge}的时间复杂度为$\BigO{|E|}$。
+就时间复杂度而言，由于创建组、更新组信息等操作均能在常数时间完成，且在运行过程中访问每条边最多1次，所以过程\textsf{partition\_merge}的时间复杂度为$O(|E|)$。
 
 AMP方法的贡献主要包括以下两点：
 
 \begin{enumerate}
   \item \textbf{基于主动顶点合并的剪枝方法。} 与被动的剪枝方法不同，AMP方法在节点生成的同时执行，不依赖于特定的顶点，因此总是能够主动合并节点内全部具有相同局部邻居的顶点。假设集合$X$中的顶点具有相同的局部邻居，AMP方法不仅能够裁剪掉集合$X$中除最小顶点外其他顶点所产生的无效分支，而且能够合并集合$X$内所有的计算，减少重复计算，从而提升计算效率。
   
-  \item \textbf{降低节点生成过程的时间复杂度。} AMP方法修改了节点生成的过程，具有降低该过程时间复杂度的潜力。具体而言，传统的节点生成过程逐个计算每个候选顶点的局部邻居，时间复杂度为$\BigO{|V|d(V)}$。而AMP方法的时间复杂度为$\BigO{|E|} =\BigO{|V|d_{avg}(V)} < \BigO{|V|d(V)}$。因此，作为一种通用方法，AMP方法可以直接用于优化现有算法的节点生成过程。
+  \item \textbf{降低节点生成过程的时间复杂度。} AMP方法修改了节点生成的过程，具有降低该过程时间复杂度的潜力。具体而言，传统的节点生成过程逐个计算每个候选顶点的局部邻居，时间复杂度为$O(|V|d(V))$。而AMP方法的时间复杂度为$O(|E|) =O(|V|d_{avg}(V)) < O(|V|d(V))$。因此，作为一种通用方法，AMP方法可以直接用于优化现有算法的节点生成过程。
 
 \end{enumerate}
 
@@ -483,13 +483,13 @@ AMP方法的贡献主要包括以下两点：
 
 结合算法~\ref{alg:ambea}，我们从时间复杂度和空间复杂度两个方面对AMBEA进行分析。
 
-\textbf{时间复杂度：} AMBEA的时间复杂度可以分为两部分，即顶点排序时间（第1行）和集合枚举树生成时间（第2-4行）。顶点排序时间复杂度为$\BigO{|V|log(|V|)}$。在每个枚举节点的计算过程中，由于$L', R', C',\overline{L},\overline{R}$ 的计算都可以通过之访问二分图中的每条边一次来得到，因此每个节点的计算复杂度为$\BigO{|E|}$。为了量化算法的计算时间，我们沿用~\ref{subsec:baseline_analysis}节中的相关定义，用$\beta$来表示枚举树中节点的数量，包括输出极大二分团的节点和产生重复二分团的节点。因此，AMBEA的时间复杂度为$\BigO{|E|\beta + |V|log(|V|)}$。由于排序开销通常远小于生成集合枚举树的开销，因此AMBEA的时间复杂度可以简化为$\BigO{|E|\beta}$。
+\textbf{时间复杂度：} AMBEA的时间复杂度可以分为两部分，即顶点排序时间（第1行）和集合枚举树生成时间（第2-4行）。顶点排序时间复杂度为$O(|V|log(|V|))$。在每个枚举节点的计算过程中，由于$L', R', C',\overline{L},\overline{R}$ 的计算都可以通过之访问二分图中的每条边一次来得到，因此每个节点的计算复杂度为$O(|E|)$。为了量化算法的计算时间，我们沿用~\ref{subsec:baseline_analysis}节中的相关定义，用$\beta$来表示枚举树中节点的数量，包括输出极大二分团的节点和产生重复二分团的节点。因此，AMBEA的时间复杂度为$O(|E|\beta + |V|log(|V|))$。由于排序开销通常远小于生成集合枚举树的开销，因此AMBEA的时间复杂度可以简化为$O(|E|\beta)$。
 
-就每个节点的计算复杂度而言，AMBEA算法中每个节点的计算时间与ooMBEA算法相同 (即$\BigO{|E|}$)，且优于其他相关算法(即$\BigO{|V|d(V)}$)。就算法的枚举空间$\beta$而言，经过~\ref{subsec:ambea_exp_overall}节的实验结果验证，AMBEA算法的枚举空间小于其他对比对象。这得益于AMBEA算法高效的剪枝能力。
+就每个节点的计算复杂度而言，AMBEA算法中每个节点的计算时间与ooMBEA算法相同 (即$O(|E|)$)，且优于其他相关算法(即$O(|V|d(V))$)。就算法的枚举空间$\beta$而言，经过~\ref{subsec:ambea_exp_overall}节的实验结果验证，AMBEA算法的枚举空间小于其他对比对象。这得益于AMBEA算法高效的剪枝能力。
 
-% 与其他极大二分团枚举算法相比，AMBEA算法的优势在于每个枚举节点的计算复杂度为$\BigO{|E|}$，这与算法ooMBEA相同，并且优于其他算法的$\BigO{|V|d(V)}$的计算复杂度。AMBEA能够取得性能优势的原因在于AMBEA对应的$\beta$值小于其他算法，即相比于其他算法，AMBEA能够裁剪掉更多的无效节点。我们将在~\ref{subsec:ambea_exp_overall}节中结合实验数据详细说明。
+% 与其他极大二分团枚举算法相比，AMBEA算法的优势在于每个枚举节点的计算复杂度为$O(|E|}$，这与算法ooMBEA相同，并且优于其他算法的$O(|V|d(V)}$的计算复杂度。AMBEA能够取得性能优势的原因在于AMBEA对应的$\beta$值小于其他算法，即相比于其他算法，AMBEA能够裁剪掉更多的无效节点。我们将在~\ref{subsec:ambea_exp_overall}节中结合实验数据详细说明。
 
-\textbf{空间复杂度: } AMBEA的空间复杂度同样分为两个部分，即输入二分图所占用的空间和极大二分团枚举过程所需要的空间。输入二分图所占用的空间为$\BigO{|E|}$。在枚举过程中，每个计算节点所需的空间为$\BigO{|L|+|R|+|C|+|\overline{L}| + |\overline{R}|} = \BigO{d(V) + |V|} = \BigO{|V|}$。由于枚举树的高度上界为$\BigO{\Delta(V)}$，我们可以得到AMBEA的空间复杂度为$\BigO{|E|+|V|\Delta(V)}$，与其他现有算法相同。此外，由于ASE树倾向于产生更加平衡的枚举树，因此AMBEA算法具有节省空间开销的潜力。
+\textbf{空间复杂度: } AMBEA的空间复杂度同样分为两个部分，即输入二分图所占用的空间和极大二分团枚举过程所需要的空间。输入二分图所占用的空间为$O(|E|)$。在枚举过程中，每个计算节点所需的空间为$O(|L|+|R|+|C|+|\overline{L}| + |\overline{R}|) = O(d(V) + |V|) = O(|V|)$。由于枚举树的高度上界为$O(\Delta(V))$，我们可以得到AMBEA的空间复杂度为$O(|E|+|V|\Delta(V))$，与其他现有算法相同。此外，由于ASE树倾向于产生更加平衡的枚举树，因此AMBEA算法具有节省空间开销的潜力。
 
 为了进一步提高效率，我们开发了算法AMBEA的并行版本ParAMBEA。受到并行算法ParMBE~\cite{parMBE18}的启发，ParAMBEA同时执行多个AMBEA中的\textsf{biclique\_search\_ambea}过程，并利用多线程优化过程内部的并行运算部分。按照算法~\ref{alg:ambea}的描述，ParAMBEA为每个顶点$v\in V$分配一个线程来执行相应的过程 (第2-4行)。此外，只要有多余的线程可用，ParAMBEA会动态创建子过程 (第18行)。为了充分利用并行资源，ParAMBEA通过使用循环展开技术对\textsf{biclique\_search\_ambea}过程中的所有for循环（例如第9-13行，16-20行）进行并行化处理。另外，ASE树倾向于产生更加平衡的枚举树的特性在ParAMBEA的负载平衡方面有很大帮助。
 
@@ -519,7 +519,7 @@ AMP方法的贡献主要包括以下两点：
   \label{fig:ambea_overall_time}
 \end{figure}
 
-图~\ref{fig:ambea_overall_time}展示了AMBEA与主流的极大二分团枚举算法在真实数据集上的运行时间对比。据观察，现有的极大二分团枚举算法在不同数据集上性能存在明显差异。例如，在StackOverflow、IMDB和Github等数据集上，ooMBEA算法明显优于MBEA、iMBEA、FMBE和PMBE，但是在YouTube、DBLP和BookCrossing等拥有大量极大二分团的数据集上，FMBE算法要比ooMBEA算法快1.59-3.43倍。与其他算法相比，本章提出的AMBEA算法在所有测试数据集上都具有最短的运行时间。具体而言，在不同数据集上，AMBEA算法比最接近的其他算法快1.15-5.32倍。特别是在BookCrossing数据集上，AMBEA只需1609秒即可完成，而其他竞争算法需要超过5934秒。AMBEA算法通过激进的剪枝策略，实现了高效的极大二分团枚举，从而在性能上超越了其他算法。
+图~\ref{fig:ambea_overall_time}展示了AMBEA与主流的极大二分团枚举算法在真实数据集上的运行时间对比。据观察，现有的极大二分团枚举算法在不同数据集上性能存在明显差异。例如，在StackOverflow、IMDB和Github等数据集上，ooMBEA算法明显优于MBEA、iMBEA、FMBE和PMBE，但是在YouTube、DBLP和BookCrossing等拥有大量极大二分团的数据集上，FMBE算法要比ooMBEA算法快1.59-3.43倍。与其他算法相比，本章提出的AMBEA算法在所有测试数据集上都具有最短的运行时间。具体而言，在不同数据集上，AMBEA算法比最接近的其他算法快1.15-5.32倍。特别是在BookCrossing数据集上，AMBEA只需1,609秒即可完成，而其他竞争算法需要超过5,934秒。AMBEA算法通过激进的剪枝策略，实现了高效的极大二分团枚举，从而在性能上超越了其他算法。
 
 \begin{figure} [H]
   \centering
@@ -541,22 +541,23 @@ AMP方法的贡献主要包括以下两点：
 
 \subsection{细分评估}
 
-我们设计消融实验，沿用整体评估中的运行时间和剪枝效率指标，在8个极大二分团数量较多的真实数据集上，对ASE树、AMP方法和顶点排序方法进行细分评估。
+我们设计消融实验，沿用整体评估中的运行时间和剪枝效率指标。具体而言，我们在8个极大二分团数量较多的真实数据集上，对ASE树、AMP方法以及顶点排序方法进行细分评估。
 
 
 \begin{figure} [H]
 	\centering
-
+  % \vspace{0.05in}
 	\subfloat[运行时间评估 (对数形式)]{
-		\includegraphics[width=0.8\linewidth]{ambea/time_opt}
+		\includegraphics[width=0.75\linewidth]{ambea/time_opt}
 		\label{fig:ambea_opt_time}
 	}
+  \vspace{0.05in}
   \\
 	\subfloat[剪枝效率评估 (对数形式)]{
-		\includegraphics[width=0.8\linewidth]{ambea/prune_opt}
+		\includegraphics[width=0.75\linewidth]{ambea/prune_opt}
 		\label{fig:ambea_opt_prune}
 	}
-
+  \vspace{0.05in}
 	\caption{ASE树、AMP方法的细分评估}
 	\label{fig:ambea_opt}
 \end{figure}
@@ -564,19 +565,19 @@ AMP方法的贡献主要包括以下两点：
 
 % \begin{figure} [H]
 %   \centering
-%   \includegraphics[width=0.8\linewidth]{ambea/time_opt}
+%   \includegraphics[width=0.75\linewidth]{ambea/time_opt}
 %   \caption{细分运行时间评估 (对数形式)}
 %   \label{fig:ambea_opt_time}
 % \end{figure}
 
 % \begin{figure} [H]
 %   \centering
-%   \includegraphics[width=0.8\linewidth]{ambea/prune_opt}
+%   \includegraphics[width=0.75\linewidth]{ambea/prune_opt}
 %   \caption{细分剪枝效率评估 (对数形式)}
 %   \label{fig:ambea_opt_prune}
 % \end{figure}
 
-为了细分评估~\ref{subsec:ase}节提出的激进的集合枚举树技术，我们在算法MBEA~\cite{iMBEA14}的基础上应用了该技术，形成了AMBEA-ASE算法。我们选择使用MBEA算法作为基础，因为它严格按照算法~\ref{alg:se_mbe}执行，并且没有进行其他优化。如图~\ref{fig:ambea_opt}所示，AMBEA-ASE的运行时间和$\delta/\alpha$的值在所有数据集上均小于MBEA。具体而言，在YouTube数据集上，AMBEA-ASE的运行时间是106.5秒，$\delta/\alpha$的值为1.96；而MBEA的运行时间是1566.8秒，$\delta/\alpha$的值为484.7。由此可见，AMBEA-ASE裁剪掉了MBEA算法中$(484.7-1.96)/484.7=98.2\%$的无效二分团，并因此带来$1566.8/106.5=14.7$倍的性能提升。这是因为在ASE树中引入了低成本节点检查技术，可以裁剪掉大量无效节点，有效的降低$\delta$的值，并且带来性能提升。
+为了细分评估~\ref{subsec:ase}节提出的激进的集合枚举树技术，我们在算法MBEA~\cite{iMBEA14}的基础上应用了该技术，形成了AMBEA-ASE算法。我们选择使用MBEA算法作为基础，因为它严格按照算法~\ref{alg:se_mbe}执行，并且没有进行其他优化。如图~\ref{fig:ambea_opt}所示，AMBEA-ASE的运行时间和$\delta/\alpha$的值在所有数据集上均小于MBEA。具体而言，在YouTube数据集上，AMBEA-ASE的运行时间是106.5秒，$\delta/\alpha$的值为1.96；而MBEA的运行时间是1,566.8秒，$\delta/\alpha$的值为484.7。由此可见，AMBEA-ASE裁剪掉了MBEA算法中$(484.7-1.96)/484.7=98.2\%$的无效二分团，并因此带来$1,566.8/106.5=14.7$倍的性能提升。这是因为在ASE树中引入了低成本节点检查技术，可以裁剪掉大量无效节点，有效的降低$\delta$的值，并且带来性能提升。
 
 为了细分评估~\ref{subsec:amp}节提出的激进的顶点合并剪枝方法，我们设计了两个算法变体：AMBEA-AMP和AMBEA-PMP。其中，AMBEA-AMP在MBEA算法的基础上应用了激进的顶点合并剪枝方法，而AMBEA-PMP则采用了~\ref{subsec:pmp}节中的被动顶点合并剪枝方法 (passive merge-based pruning, PMP)。如图~\ref{fig:ambea_opt}所示，与MBEA相比，AMBEA-AMP和AMBEA-PMP通过顶点合并技术裁剪掉了大量无效节点，在所有数据集上都带来了性能提升。此外，AMBEA-AMP的运行时间和剪枝效率始终优于AMBEA-PMP。具体而言，在StackOverflow数据集上，AMBEA-AMP裁剪掉了AMBEA-PMP中96.5\%的无效二分团，并因此带来12.5倍的性能提升。这是因为PMP方法只在特定顶点生成的极大二分团通过节点检测后，才会合并具有相同局部邻居顶点；而AMP方法则总是激进地合并具有相同局部邻居顶点，并因此带来额外的剪枝效果。
 
@@ -589,7 +590,7 @@ AMP方法的贡献主要包括以下两点：
 	\label{fig:ambea_opt_order}
 \end{figure}
 
-为了细分评估~\ref{subsec:ambea}节提到的按照顶点邻居数量递增排序的顶点排序方法，我们设计了三个算法变体：AMBEA-INC，AMBEA-RAND，AMBEA-UC。这三个变体均基于AMBEA实现，唯一的区别是集合$V$中顶点的排序方式不同。其中AMBEA-INC按照顶点邻居数量进行递增排序，AMBEA-RAND不进行排序，AMBEA-UC则采用单边排序方式~\cite{ooMBE22}，这种方式在~\ref{subsec:order}节中已详细介绍。如图~\ref{fig:ambea_opt_order}所示，AMBEA-INC的执行时间总是小于AMBEA-RAND和AMBEA-UC，尤其是在具有较多极大二分团的数据集上。具体而言，在Github数据集上，AMBEA-INC的运行时间仅为5085秒，而AMBEA-RAND和AMBEA-UC的运行时间分别为23067秒和14500秒。因此，在我们的实验中，我们总是按照顶点邻居数量递增排序集合$V$中的顶点。
+为了细分评估~\ref{subsec:ambea}节提到的按照顶点邻居数量递增排序的顶点排序方法，我们设计了三个算法变体：AMBEA-INC，AMBEA-RAND，AMBEA-UC。这三个变体均基于AMBEA实现，唯一的区别是集合$V$中顶点的排序方式不同。其中AMBEA-INC按照顶点邻居数量进行递增排序，AMBEA-RAND不进行排序，AMBEA-UC则采用单边排序方式~\cite{ooMBE22}，这种方式在~\ref{subsec:order}节中已详细介绍。如图~\ref{fig:ambea_opt_order}所示，AMBEA-INC的执行时间总是小于AMBEA-RAND和AMBEA-UC，尤其是在具有较多极大二分团的数据集上。具体而言，在Github数据集上，AMBEA-INC的运行时间仅为5,085秒，而AMBEA-RAND和AMBEA-UC的运行时间分别为23,067秒和14,500秒。因此，在我们的实验中，我们总是按照顶点邻居数量递增排序集合$V$中的顶点。
 
 \subsection{敏感性测试}
 
@@ -597,7 +598,7 @@ AMP方法的贡献主要包括以下两点：
 
 \begin{figure} [H]
 	\centering
-	\includegraphics[width=0.8\linewidth]{ambea/balance}
+	\includegraphics[width=0.75\linewidth]{ambea/balance}
 	\caption{枚举树平衡性敏感性分析}
 	\label{fig:ambea_exp_balance}
 \end{figure}
@@ -606,12 +607,12 @@ AMP方法的贡献主要包括以下两点：
 
 \begin{figure} [H]
 	\centering
-	\includegraphics[width=0.7\linewidth]{ambea/scalability}
+	\includegraphics[width=0.75\linewidth]{ambea/scalability}
 	\caption{算法扩展性敏感性分析 (对数形式)}
 	\label{fig:ambea_exp_scalability}
 \end{figure}
 
-为了探索AMBEA的可扩展性，我们选择了FMBE和ooMBEA作为对比算法，因为它们在整体性能实验中在大规模数据集上表现出色。如图~\ref{fig:ambea_exp_scalability}所示，实验结果表明，尽管随着数据集规模的增加，不同算法的运行时间呈指数级增加，但是AMBEA算法始终在大规模合成数据集上表现出比现有方法更好的性能。具体而言，AMBEA算法在大规模合成数据集上的运行速度比FMBE快47.2倍至141.7倍，比ooMBEA快6.7倍至11.1倍。特别是在LJ25数据集上，AMBEA算法的完成时间为1870秒，而FMBE和ooMBEA分别需要116582秒和12614秒。从实验结果可以看出，AMBEA算法具有良好的可扩展性，在处理大规模数据集时显示出明显的优势。
+为了探索AMBEA的可扩展性，我们选择了FMBE和ooMBEA作为对比算法，因为它们在整体性能实验中在大规模数据集上表现出色。如图~\ref{fig:ambea_exp_scalability}所示，实验结果表明，尽管随着数据集规模的增加，不同算法的运行时间呈指数级增加，但是AMBEA算法始终在大规模合成数据集上表现出比现有方法更好的性能。具体而言，AMBEA算法在大规模合成数据集上的运行速度比FMBE快47.2倍至141.7倍，比ooMBEA快6.7倍至11.1倍。特别是在LJ25数据集上，AMBEA算法的完成时间为1,870秒，而FMBE和ooMBEA分别需要116,582秒和12,614秒。从实验结果可以看出，AMBEA算法具有良好的可扩展性，在处理大规模数据集时显示出明显的优势。
 
 
 \begin{figure} [H]
@@ -641,7 +642,7 @@ AMP方法的贡献主要包括以下两点：
 	\label{fig:ambea_paral}
 \end{figure}
 
-为了探索AMBEA的并行性，我们将其并行版本ParAMBEA与最先进的并行算法ParMBE进行比较。我们在四个运行时间最长的数据集上进行了实验：StackOverflow、IMDB、BookCrossing和Github。我们分别使用4、8、16、32、64、96个线程在不同数据集上分别运行ParAMBEA和ParMBE算法。由于实验服务器中共包含96个计算核，我们将线程数量上限设置为 96。如图~\ref{fig:ambea_paral}所示，ParAMBEA 相较于 ParMBE 具有明显的性能优势，执行时间缩短了 17.4-293.8 倍。同时，从图表中我们可以观察到，随着线程数量的增加，ParAMBEA 的执行时间几乎呈线性下降趋势，这意味着它可以有效地利用更多的计算资源来加速算法的执行。值得注意的是，通过并行化，我们成功将 BookCrossing 数据集上 AMBEA 算法的运行时间从 1610 秒大幅缩短至仅需 51 秒。这个结果充分证明了ParAMBEA 在并行性能方面的优越性，并显示出其在大规模数据集上的应用潜力。
+为了探索AMBEA的并行性，我们将其并行版本ParAMBEA与最先进的并行算法ParMBE进行比较。我们在四个运行时间最长的数据集上进行了实验：StackOverflow、IMDB、BookCrossing和Github。我们分别使用4、8、16、32、64、96个线程在不同数据集上分别运行ParAMBEA和ParMBE算法。由于实验服务器中共包含96个计算核，我们将线程数量上限设置为 96。如图~\ref{fig:ambea_paral}所示，ParAMBEA 相较于 ParMBE 具有明显的性能优势，执行时间缩短了 17.4-293.8 倍。同时，从图表中我们可以观察到，随着线程数量的增加，ParAMBEA 的执行时间几乎呈线性下降趋势，这意味着它可以有效地利用更多的计算资源来加速算法的执行。值得注意的是，通过并行化，我们成功将 BookCrossing 数据集上 AMBEA 算法的运行时间从 1,610 秒大幅缩短至仅需 51 秒。这个结果充分证明了ParAMBEA 在并行性能方面的优越性，并显示出其在大规模数据集上的应用潜力。
 
 \section{本章小结}
 

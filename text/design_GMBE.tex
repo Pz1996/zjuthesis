@@ -2,11 +2,11 @@
 \label{ch:gmbe}
 
 针对现有极大二分团枚举算法在并行扩展性方面受限于CPU计算核心数量的问题，本章引入了具有大量计算核心的GPU作为计算资源，以加速极大二分团枚举过程。本章介绍了现代GPU的硬件架构和软件编程模型。同时，本章%整理了GPU加速图计算的相关工作，并
-指出在GPU上实现极大二分团枚举所面临的挑战，作为研究的动机。具体而言，简单地将现有算法映射到大量的GPU计算核心中会遇到内存短缺、线程分歧和负载不均等问题。为了解决这些问题，本章提出了以下优化方法：首先，针对内存短缺问题，本章提出了基于节点重用的迭代计算流程。该方法可以重用枚举树根节点内存，避免为新枚举节点动态分配内存，从而减少内存开销。其次，针对线程分歧问题，本章提出了基于局部邻居数量感知的剪枝方法。该方法通过记录枚举过程中顶点局部邻居数量的变化对枚举空间进行剪枝，缓解了线程分歧问题。然后，针对负载不均问题，本章提出了负载感知的任务调度方法。该方法将每颗子枚举树对应的计算任务与一个线程束的计算资源进行绑定，在运行时动态预估子枚举树的大小并对较大的子枚举树进行进一步拆分，实现了细粒度的负载均衡。最后，本章结合上述三种方法，提出了基于GPU的高效极大二分团枚举解决方案GMBE。实验证明，基于单个NVIDIA A100 GPU的GMBE相比现有基于96个CPU的并行算法parMBE实现了70.6倍的性能提升。
+指出在GPU上实现极大二分团枚举所面临的挑战，作为研究的动机。具体而言，简单地将现有算法映射到大量的GPU计算核心中会遇到内存短缺、线程分歧和负载不均等问题。为了解决这些问题，本章提出了以下优化方法：首先，针对内存短缺问题，本章提出了基于节点重用的迭代计算流程。该方法可以重用枚举树根节点内存，避免为新枚举节点动态分配内存，从而减少内存开销。其次，针对线程分歧问题，本章提出了基于局部邻居数量感知的剪枝方法。该方法通过记录枚举过程中顶点局部邻居数量的变化对枚举空间进行剪枝，缓解了线程分歧问题。然后，针对负载不均问题，本章提出了负载感知的任务调度方法。该方法将每棵子枚举树对应的计算任务与一个线程束的计算资源进行绑定，在运行时动态预估子枚举树的大小并对较大的子枚举树进行进一步拆分，实现了细粒度的负载均衡。最后，本章结合上述三种方法，提出了基于GPU的高效极大二分团枚举解决方案GMBE。实验证明，基于单个NVIDIA A100 GPU的GMBE相比现有基于96个CPU的并行算法ParMBE实现了70.6倍的性能提升。
 
 \section{现代GPU架构与编程模型} 
 \label{sec:gpu_arch}
-GPU，即图形处理单元(Graphics Processing Unit)，最初是专门用于处理图形数据的处理器。随着计算需求的增加，现代GPU逐渐演变成了通用并行处理器，能够高效执行大规模数据并行计算任务，如科学计算、深度学习和密码学等。与传统的中央处理器(central processing unit, CPU)相比，现代GPU拥有更多的计算核心，并且能够利用这些核心并行处理大量数据，因此成为加速图计算的有力工具，同时具备加速极大二分团枚举问题的潜力。在本节中，我们将深入探讨现代GPU的硬件架构、与硬件架构对应的主流的软件编程模型CUDA (compute unified device architecture)以及针对CUDA的编程指南，作为本章的研究背景。
+GPU，即图形处理单元（Graphics Processing Unit），最初是专门用于处理图形数据的处理器。随着计算需求的增加，现代GPU逐渐演变成了通用并行处理器，能够高效执行大规模数据并行计算任务，如科学计算、深度学习和密码学等。与传统的中央处理器（central processing unit， CPU）相比，现代GPU拥有更多的计算核心，并且能够利用这些核心并行处理大量数据，因此成为加速图计算的有力工具，同时具备加速极大二分团枚举问题的潜力。在本节中，我们将深入探讨现代GPU的硬件架构、与硬件架构对应的主流的软件编程模型CUDA （compute unified device architecture） 以及针对CUDA的编程指南，作为本章的研究背景。
 
 \begin{figure} [t]
   \center
@@ -17,9 +17,9 @@ GPU，即图形处理单元(Graphics Processing Unit)，最初是专门用于处
 	\label{fig:gpu}
 \end{figure}
 
-图\ref{fig:gpu}展示了现代GPU的硬件架构和软件编程模型。GPU的\textbf{硬件架构}包括大量的计算核心，以及对应的层级存储结构。具体而言，一块现代GPU通常包括全局内存(global memory)、共享的L2缓存(cache)以及大量的流处理器 (streaming multiprocessor, SM)。每个流处理器包含单独的L1缓存、可编程的具有多分区(multi-bank)的共享内存(shared memory)，以及多个轻量级计算核心(core)。主流的GPU可以配备上万个轻量级计算核心，提供了巨大的计算能力。然而，与丰富的计算资源相比，GPU上的内存资源相对有限。例如，近年备受青睐的NVIDIA A100~\cite{NVIDIA-A100}最多可以提供6912个核心，但只能提供最多80GB的全局内存。
+图\ref{fig:gpu}展示了现代GPU的硬件架构和软件编程模型。GPU的\textbf{硬件架构}包括大量的计算核心，以及对应的层级存储结构。具体而言，一块现代GPU通常包括全局内存（global memory）、共享的L2缓存（cache）以及大量的流处理器 （streaming multiprocessor， SM）。每个流处理器包含单独的L1缓存、可编程的具有多分区（multi-bank）的共享内存（shared memory），以及多个轻量级计算核心（core）。主流的GPU可以配备上万个轻量级计算核心，提供了巨大的计算能力。然而，与丰富的计算资源相比，GPU上的内存资源相对有限。例如，近年备受青睐的NVIDIA A100~\cite{NVIDIA-A100}最多可以提供6912个核心，但只能提供最多80GB的全局内存。
 
-与GPU的多计算核心的硬件架构相对应，主流的\textbf{CUDA软件编程模型}按照层级结构管理大量线程。具体而言，CUDA编程模型提供了一个并行计算平台和一组API~\cite{CUDA-wiki,CUDAProgrammingGuide}，允许用户高效地利用GPU进行通用目的的处理。CUDA采用SIMT (single instruction, multiple threads)~\cite{SIMT-wiki} 执行模型来管理大量线程。它将GPU内核划分为多个网格 (grid)，每个网格包含多个块 (block)，每个块包括多个线程 (thread)，并在执行期间分配给一个流处理器 (SM)。流处理器将32个并行线程分组成一个线程束 (warp)，并同时执行多个线程束。通过这种方式，成千上万个GPU核心可以高效地并行工作，实现高性能计算。
+与GPU的多计算核心的硬件架构相对应，主流的\textbf{CUDA软件编程模型}按照层级结构管理大量线程。具体而言，CUDA编程模型提供了一个并行计算平台和一组API~\cite{CUDA-wiki，CUDAProgrammingGuide}，允许用户高效地利用GPU进行通用目的的处理。CUDA采用SIMT （single instruction， multiple threads）~\cite{SIMT-wiki} 执行模型来管理大量线程。它将GPU内核划分为多个网格 （grid），每个网格包含多个块 （block），每个块包括多个线程 （thread），并在执行期间分配给一个流处理器 （SM）。流处理器将32个并行线程分组成一个线程束 （warp），并同时执行多个线程束。通过这种方式，成千上万个GPU核心可以高效地并行工作，实现高性能计算。
 
 为了提升GPU的执行性效率，我们针对CUDA编程模型总结了\textbf{编程指南}如下：
 
@@ -58,7 +58,7 @@ GPU，即图形处理单元(Graphics Processing Unit)，最初是专门用于处
 \end{figure}
 
 \subsection{内存短缺}
-根据~\ref{subsec:algorithm}节的描述，我们注意到现有的极大二分团枚举算法（如算法~\ref{alg:se_mbe}所示）在枚举过程中会\emph{动态的生成和释放枚举节点$(L,R,C)$}。将这类算法直接迁移到GPU上会导致~\ref{sec:gpu_arch}节中提到的动态内存分配问题。为了实现高性能，现有的基于GPU的图挖掘算法（例如~\cite{MCE-GPU21,Kclique22,g2miner22,Graphset23}）通常在执行之前就在GPU上预先分配足够的内存空间来容纳所有的枚举节点。参考这些算法的内存估计方法，我们可以得出在极大二分团枚举算法中，每个枚举节点需要使用$O(|L|+|R|+|C|)$的内存，上限为$O(\Delta(V) + \Delta_2(V))$。同时，在遍历过程中，每棵子树最多需要激活$\Delta(V)$个枚举节点用于回溯。因此，每棵枚举树的遍历过程需要预分配的内存总量为$\Delta(V) \times (\Delta(V) + \Delta_2(V))$ $\times$ \textit{顶点大小}。例如，在使用 NVIDIA A100 GPU（40 GB 内存）对真实世界的二分图 BookCrossing~\cite{konect} 进行极大二分团枚举时，每棵子树遍历过程的内存需求为$13,601 \times (13,601 + 53,915) \times$ \textbf{sizeof}(\textbf{int}) B = 3.67\,GB。为了充分利用NVIDIA A100 GPU中的108个流处理器 (SM), 我们需要$108 \times 3.67$ GB = 397\,GB的内存，超过了GPU中的内存空间 (40GB)，因此面临严重的内存短缺问题。
+根据~\ref{subsec:algorithm}节的描述，我们注意到现有的极大二分团枚举算法（如算法~\ref{alg:se_mbe}所示）在枚举过程中会\emph{动态的生成和释放枚举节点$(L,R,C)$}。将这类算法直接迁移到GPU上会导致~\ref{sec:gpu_arch}节中提到的动态内存分配问题。为了实现高性能，现有的基于GPU的图挖掘算法（例如~\cite{MCE-GPU21,Kclique22,g2miner22,Graphset23}）通常在执行之前就在GPU上预先分配足够的内存空间来容纳所有的枚举节点。参考这些算法的内存估计方法，我们可以得出在极大二分团枚举算法中，每个枚举节点需要使用$O(|L|+|R|+|C|)$的内存，上限为$O(\Delta(V) + \Delta_2(V))$。同时，在遍历过程中，每棵子树最多需要激活$\Delta(V)$个枚举节点用于回溯。因此，每棵枚举树的遍历过程需要预分配的内存总量为$\Delta(V) \times (\Delta(V) + \Delta_2(V))$ $\times$ \textit{顶点大小}。例如，在使用 NVIDIA A100 GPU（40 GB 内存）对真实世界的二分图 BookCrossing~\cite{konect} 进行极大二分团枚举时，每棵子树遍历过程的内存需求为$13,601 \times (13,601 + 53,915) \times$ \textbf{sizeof}(\textbf{int}) B = 3.67\,GB。为了充分利用NVIDIA A100 GPU中的108个流处理器 （SM）， 我们需要$108 \times 3.67$ GB = 397\,GB的内存，超过了GPU中的内存空间 （40GB），因此面临严重的内存短缺问题。
 
 \subsection{线程分歧}
 \label{subsec:gmbe_thread_divergence}
@@ -147,16 +147,16 @@ GPU，即图形处理单元(Graphics Processing Unit)，最初是专门用于处
 \end{figure}
 
 
-具体而言，在算法~\ref{alg:gmbe_stack}中，我们不再以递归的方式创建和释放枚举节点，而是采用类似栈的结构$node\_buf$进行显式的迭代 (第3-5，8，20行)。每个$node\_buf$包括根节点内的所有顶点、每个顶点的深度属性、以及从根节点到当前节点所遍历的所有顶点。例如，图~\ref{fig:gmbe_node_buf}展示了图~\ref{fig:gmbe_tree}中节点$r$对应的$node\_buf$。每个\textit{顶点}的\emph{\textit{深度}}根据当前节点的\emph{祖先节点数量}确定。\textit{已遍历的顶点}记录着从子枚举树根节点到当前节点所遍历的顶点，用于回溯搜索。在枚举过程中，我们只需要主动更新\textit{顶点}的\textit{深度}属性以及记录\textit{已遍历的顶点}。通过这种方式，迭代过程可以重用$node\_buf$对应的固定内存区域推导出所有的子节点，进而极大程度地减少了GPU中的内存开销。接下来，我们将详细阐述涉及节点重用的关键函数：
+具体而言，在算法~\ref{alg:gmbe_stack}中，我们不再以递归的方式创建和释放枚举节点，而是采用类似栈的结构$node\_buf$进行显式的迭代 （第3-5，8，20行）。每个$node\_buf$包括根节点内的所有顶点、每个顶点的深度属性、以及从根节点到当前节点所遍历的所有顶点。例如，图~\ref{fig:gmbe_node_buf}展示了图~\ref{fig:gmbe_tree}中节点$r$对应的$node\_buf$。每个\textit{顶点}的\emph{\textit{深度}}根据当前节点的\emph{祖先节点数量}确定。\textit{已遍历的顶点}记录着从子枚举树根节点到当前节点所遍历的顶点，用于回溯搜索。在枚举过程中，我们只需要主动更新\textit{顶点}的\textit{深度}属性以及记录\textit{已遍历的顶点}。通过这种方式，迭代过程可以重用$node\_buf$对应的固定内存区域推导出所有的子节点，进而极大程度地减少了GPU中的内存开销。接下来，我们将详细阐述涉及节点重用的关键函数：
 
 
 
 \begin{itemize}
-  \item  \textsf{init\_and\_push}$((L_r,R_r,C_r))$ : 该函数用于利用子树的根节点$(L_r,R_r,C_r)$创建并初始化$node\_buf$ (第3行)。$node\_buf$存储了$L_r \cup R_r \cup C_r$中的所有顶点，并记录每个顶点的深度以及已遍历的顶点。我们将$L_r \cup R_r$中顶点的深度初始化为0，将$C_r$中顶点的深度初始化为$\infty$。
+  \item  \textsf{init\_and\_push}$((L_r,R_r,C_r))$ : 该函数用于利用子树的根节点$(L_r,R_r,C_r)$创建并初始化$node\_buf$ （第3行）。$node\_buf$存储了$L_r \cup R_r \cup C_r$中的所有顶点，并记录每个顶点的深度以及已遍历的顶点。我们将$L_r \cup R_r$中顶点的深度初始化为0，将$C_r$中顶点的深度初始化为$\infty$。
   
-  \item  \textsf{push}$((L',R',C'))$ : 该函数用于向$node\_buf$中压入一个新的子节点 (第8，20行)。当我们在深度为D（即已遍历的顶点数量+1）处压入一个新节点$(L',R',C')$时，我们知道$L' \subset L_r$, $R' \subset R_r \cup C_r$ 且 $C' \subset C_r$。我们将$L'$内顶点的深度更新为D，$R'$内深度为$\infty$的顶点的深度更新为D。因此，通过访问顶点的深度属性，我们总是能够在原始的$(L_r,R_r,C_r)$对应的$node\_buf$中找到新节点$(L',R',C')$，其中$L'$包含$L_r$内所有深度为D的顶点，$R'$包含$R_r\cup C_r$中所有深度不大于D的顶点，$C'$包含$C_r$中深度为$\infty$的顶点。最后，我们将用于生成节点$(L',R',C')$的已遍历顶点加入到已遍历的顶点集中。
+  \item  \textsf{push}$((L',R',C'))$ : 该函数用于向$node\_buf$中压入一个新的子节点 （第8，20行）。当我们在深度为D（即已遍历的顶点数量+1）处压入一个新节点$(L',R',C')$时，我们知道$L' \subset L_r$， $R' \subset R_r \cup C_r$ 且 $C' \subset C_r$。我们将$L'$内顶点的深度更新为D，$R'$内深度为$\infty$的顶点的深度更新为D。因此，通过访问顶点的深度属性，我们总是能够在原始的$(L_r,R_r,C_r)$对应的$node\_buf$中找到新节点$(L',R',C')$，其中$L'$包含$L_r$内所有深度为D的顶点，$R'$包含$R_r\cup C_r$中所有深度不大于D的顶点，$C'$包含$C_r$中深度为$\infty$的顶点。最后，我们将用于生成节点$(L',R',C')$的已遍历顶点加入到已遍历的顶点集中。
 
-  \item  \textsf{pop}$()$ : 该函数用于得到当前栈顶节点$(L_p,R_p,C_p)$，并利用$node\_buf$回溯到其父节点 (第5行)。当我们在节点深度D处弹出节点$(L_p,R_p,C_p)$时，首先移除已遍历的顶点集中最新遍历的顶点，然后将$L_p$内顶点的深度更新为D-1，将$C_r$内深度为D的顶点的深度更新为$\infty$。
+  \item  \textsf{pop}$()$ : 该函数用于得到当前栈顶节点$(L_p,R_p,C_p)$，并利用$node\_buf$回溯到其父节点 （第5行）。当我们在节点深度D处弹出节点$(L_p,R_p,C_p)$时，首先移除已遍历的顶点集中最新遍历的顶点，然后将$L_p$内顶点的深度更新为D-1，将$C_r$内深度为D的顶点的深度更新为$\infty$。
   
 \end{itemize}
 
@@ -168,7 +168,7 @@ GPU，即图形处理单元(Graphics Processing Unit)，最初是专门用于处
 \subsection{基于局部邻居数量感知的剪枝方法}
 \label{subsec:gmbe_prune}
 
-现有的剪枝方法在GPU上由于线程分歧导致效率较低。为了解决这一问题，我们提出了一种新的剪枝方法，旨在减少枚举空间的同时减少线程分歧。具体而言，参照表~\ref{tab:definition}，对于给定节点$(L, R, C)$，我们将顶点$v \in V$的\textbf{局部邻居}定义为$N_L(v)$，其中$N_L(v)$等于$N(v) \cap L$。随后，我们定义\textbf{局部邻居数量}为局部邻居的顶点个数。在算法~\ref{alg:gmbe_stack}中，候选顶点的局部邻居数量总是作为中间结果出现 (第11、13行)，因此，我们能够在不引入额外计算的情况下得到候选顶点的局部邻居数量。基于这一现象，我们总结了如下定理：
+现有的剪枝方法在GPU上由于线程分歧导致效率较低。为了解决这一问题，我们提出了一种新的剪枝方法，旨在减少枚举空间的同时减少线程分歧。具体而言，参照表~\ref{tab:definition}，对于给定节点$(L, R, C)$，我们将顶点$v \in V$的\textbf{局部邻居}定义为$N_L(v)$，其中$N_L(v)$等于$N(v) \cap L$。随后，我们定义\textbf{局部邻居数量}为局部邻居的顶点个数。在算法~\ref{alg:gmbe_stack}中，候选顶点的局部邻居数量总是作为中间结果出现 （第11、13行），因此，我们能够在不引入额外计算的情况下得到候选顶点的局部邻居数量。基于这一现象，我们总结了如下定理：
 
 \begin{theorem}
   假设当前节点为枚举树中的节点$s$，在选择候选顶点$v_r$时，如果对于当前节点$s$中顶点$v_r$的局部邻居数量与任一子节点$t$中顶点$v_r$的局部邻居数量相等，我们可以安全地裁剪由节点$s$选择顶点$v_r$所产生的子节点。
@@ -249,20 +249,20 @@ GPU，即图形处理单元(Graphics Processing Unit)，最初是专门用于处
 \end{algorithm}
 
 
-然后，我们可以参考已有的图挖掘算法，将每个任务映射到GPU的不同的线程束~\cite{g2miner22}或者不同线程块~\cite{Kclique22}上。我们将两种方案分别称为\textit{基于线程束的调度方法(warp-centric scheme)}和\textit{基于线程块的调度方法(block-centric scheme)}。然而，我们的研究表明，由于算法~\ref{alg:gmbe_task_naive}在第11行创建的并行任务执行时间差异很大，对于极大二分团问题，这两种简单的调度方法不足以平衡GPU中不同流处理器 (SM)上的任务负载。具体而言，在一个线程束或一个线程块中运行的最慢任务经常阻塞其他任务，导致EuAll数据集上高达97.8\%的性能下降。~\ref{subsec:gmbe_breakdown}节将展示更多任务调度相关的实验结果。
+然后，我们可以参考已有的图挖掘算法，将每个任务映射到GPU的不同的线程束~\cite{g2miner22}或者不同线程块~\cite{Kclique22}上。我们将两种方案分别称为\textit{基于线程束的调度方法（warp-centric scheme）}和\textit{基于线程块的调度方法（block-centric scheme）}。然而，我们的研究表明，由于算法~\ref{alg:gmbe_task_naive}在第11行创建的并行任务运行时间差异很大，对于极大二分团问题，这两种简单的调度方法不足以平衡GPU中不同流处理器 （SM）上的任务负载。具体而言，在一个线程束或一个线程块中运行的最慢任务经常阻塞其他任务，导致EuAll数据集上高达97.8\%的性能下降。~\ref{subsec:gmbe_breakdown}节将展示更多任务调度相关的实验结果。
 
 
 
 
-为了更好地平衡GPU中的任务负载，我们提出了一种针对极大二分团枚举的\textit{负载感知的基于任务的调度方法(task-centric scheme)}。该方法基于GPU编程模式中的持久线程编程模型(persistent thread, PT)~\cite{PersistentThread12}。具体而言，我们根据GPU中的流处理器数量创建对应数量的线程组，将每个线程组固定地映射到一个GPU的流处理器上。随后，为每个线程组设置固定数量的线程束，将每个流处理器上线程束的数量用\textit{WarpPerSM}表示，并在后文讨论其对系统性能的影响。
+为了更好地平衡GPU中的任务负载，我们提出了一种针对极大二分团枚举的\textit{负载感知的基于任务的调度方法（task-centric scheme）}。该方法基于GPU编程模式中的持久线程编程模型（persistent thread， PT）~\cite{PersistentThread12}。具体而言，我们根据GPU中的流处理器数量创建对应数量的线程组，将每个线程组固定地映射到一个GPU的流处理器上。随后，为每个线程组设置固定数量的线程束，将每个流处理器上线程束的数量用\textit{WarpPerSM}表示，并在后文讨论其对系统性能的影响。
 
 
 
-我们设计了一个可以创建负载感知任务的GPU核函数(kernel function)，该函数会将处理较大枚举树的任务递归地分解为更小的任务，并将这些负载感知任务添加到每个流处理器的全局结构\textit{SM\_task\_queue}中。当一个任务完成时，PT的软件调度器会从\textit{SM\_task\_queue}中出队一个任务，并在相应的SM上迭代执行\textsf{}{iteratively\_search()}。
+我们设计了一个可以创建负载感知任务的GPU核函数（kernel function），该函数会将处理较大枚举树的任务递归地分解为更小的任务，并将这些负载感知任务添加到每个流处理器的全局结构\textit{SM\_task\_queue}中。当一个任务完成时，PT的软件调度器会从\textit{SM\_task\_queue}中出队一个任务，并在相应的SM上迭代执行\textsf{}{iteratively\_search()}。
 
 为实现负载感知，关键问题在于高效地检测出哪些负载的任务较重，并及时对高负载任务进行分解。对此，我们根据子枚举树根节点$(L,R,C)$的信息来估计枚举树的高度和节点数量。具体而言，我们估计枚举树的高度为$\min\{|L|,|C|\}$。我们估计枚举树中节点数量为$\min\{|L|,|C|\}\times|C|$，因为$|C|$代表了每个节点能够产生子节点的最大数量。我们经验性地设置了两个阈值$bound\_height$ 和 $bound\_size$，只有当$\min\{|L|,|C|\}$大于$bound\_height$且$\min\{|L|,|C|\}\times|C|$ 大于 $bound\_size$时，我们将该任务分解成多个子任务，以实现更好地负载平衡。
 
-算法~\ref{alg:gmbe_task_full}描述了针对极大二分团枚举问题的GPU负载感知的基于任务的调度算法。当\textit{SM\_task\_queue}不为空时，它从队列里获取一个节点(第6行)，如果我们估计该节点对应的负载较小时，我们直接启动一个GPU任务(第37行)；反之，如果对应的负载超过阈值时(第23行)，我们将该任务拆分成小任务并将小任务对应的根节点入队进行枚举(第23-35行)。这些小任务对应的节点将重新参与\textit{SM\_task\_queue}的调度。如果\textit{SM\_task\_queue}为空时，我们将从$processing\_v$获取需要处理的当前顶点$v_s$。然后用顶点$v_s$产生一个枚举任务，并运行在GPU上(第8-20行)。
+算法~\ref{alg:gmbe_task_full}描述了针对极大二分团枚举问题的GPU负载感知的基于任务的调度算法。当\textit{SM\_task\_queue}不为空时，它从队列里获取一个节点（第6行），如果我们估计该节点对应的负载较小时，我们直接启动一个GPU任务（第37行）；反之，如果对应的负载超过阈值时（第23行），我们将该任务拆分成小任务并将小任务对应的根节点入队进行枚举（第23-35行）。这些小任务对应的节点将重新参与\textit{SM\_task\_queue}的调度。如果\textit{SM\_task\_queue}为空时，我们将从$processing\_v$获取需要处理的当前顶点$v_s$。然后用顶点$v_s$产生一个枚举任务，并运行在GPU上（第8-20行）。
 
 \input{text/alg_gmbe_full}
 
@@ -277,15 +277,15 @@ $\Delta(V)$， 和 $\Delta_2(V)$。由于二分图中$U$和$V$是对称的，在
 
 \textbf{基于相交路径的集合并集操作。} 为了降低算法~\ref{alg:gmbe_task_full} 第11行计算2跳邻居的开销，我们在GPU上实现了基于相交路径的集合并集操作。这一方法受到了文献~\cite{GpuMergePathIntersect14} 的启发。具体而言，为了并行化集合并集操作，每个线程使用滑动窗口遍历一个相交路径，并在当前窗口内独立查找部分相交路径。最后，线程束中的所有线程同步部分结果，生成完整的相交路径。
 
-\textbf{多GPU上的GMBE算法实现。}高性能计算机可能由多个 GPU 组成，以加速应用执行性能。为了支持这种情况，我们可以轻松地将 GMBE 算法扩展到多 GPU 计算机。其基本思想是在所有 GPU 设备上共享算法~\ref{alg:gmbe_task_full} 中的全局变量$processing\_v$，并将第8行中的\textsf{atomicInc} 原语替换为 \textsf{atomicInc\_system}~\cite{CUDAProgrammingGuide}。因此，MBE 问题被划分为多个独立的子问题，并每个 GPU 独立处理这些子问题。整体运行时间由执行时间最长的 GPU 决定。实验结果显示，GMBE 在多个 GPU 上是高效的，因为多个 GPU 上的每个线程束可以使用原子原语自动平衡工作负载，几乎没有同步开销。从理论上讲，GMBE 也可以扩展到分布式计算环境，其中多台机器（每台机器都有一个或多个 GPU）通过网络连接。由于本文侧重于单机环境，我们将探索将 GMBE 应用于分布式多机集群作为未来工作。
+\textbf{多GPU上的GMBE算法实现。}高性能计算机可能由多个 GPU 组成，以加速应用执行性能。为了支持这种情况，我们可以轻松地将 GMBE 算法扩展到多 GPU 计算机。其基本思想是在所有 GPU 设备上共享算法~\ref{alg:gmbe_task_full} 中的全局变量$processing\_v$，并将第8行中的\textsf{atomicInc} 原语替换为 \textsf{atomicInc\_system}~\cite{CUDAProgrammingGuide}。因此，MBE 问题被划分为多个独立的子问题，并每个 GPU 独立处理这些子问题。整体运行时间由运行时间最长的 GPU 决定。实验结果显示，GMBE 在多个 GPU 上是高效的，因为多个 GPU 上的每个线程束可以使用原子原语自动平衡工作负载，几乎没有同步开销。从理论上讲，GMBE 也可以扩展到分布式计算环境，其中多台机器（每台机器都有一个或多个 GPU）通过网络连接。由于本文侧重于单机环境，我们将探索将 GMBE 应用于分布式多机集群作为未来工作。
 
 
 \section{实验评估}
-本节将利用真实数据集，通过对比现有的串行和并行方法，全面评估GMBE算法的性能表现。首先，介绍实验环境设置，包括实验平台、数据集、比较对象和测试方法。随后，通过对已有算法在真实数据上的执行情况进行分析，从执行时间的角度对GMBE进行整体评估。接着，通过消融实验，对本章提出的节点重用技术、剪枝技术和负载均衡技术进行详细评估。最后，对涉及的参数、GMBE在不同GPU上的适用性以及在多GPU上的可扩展性进行敏感性测试。
+本节将利用真实数据集，通过对比现有的串行和并行方法，全面评估GMBE算法的性能表现。首先，介绍实验环境设置，包括实验平台、数据集、比较对象和测试方法。随后，通过对已有算法在真实数据上的执行情况进行分析，从运行时间的角度对GMBE进行整体评估。接着，通过消融实验，对本章提出的节点重用技术、剪枝技术和负载均衡技术进行详细评估。最后，对涉及的参数、GMBE在不同GPU上的适用性以及在多GPU上的可扩展性进行敏感性测试。
 
 \subsection{实验设置}
 
-\textbf{实验环境设置。} 本节的主要实验在一台配备有1个NVIDIA A100 GPU~\cite{NVIDIA-A100}和4个Intel Xeon(R) Gold 5318Y 2.10GHz CPU 的Linux服务器上进行。其中每个NVIDIA A100 GPU 包括108 个流多处理器（SMs）和 40 GB 全局内存，每个 Intel Xeon(R) Gold 5318Y 2.10GHz CPU 拥有24个计算核心，总计96个计算核心。操作系统为 Linux 内核-5.4.0。在默认情况下，GMBE算法及相关变种在单个A100 GPU上执行，其他现有的基于CPU的比较算法均在CPU上执行。
+\textbf{实验环境设置。} 本节的主要实验在一台配备有1个NVIDIA A100 GPU~\cite{NVIDIA-A100}和4个Intel Xeon（R） Gold 5318Y 2.10GHz CPU 的Linux服务器上进行。其中每个NVIDIA A100 GPU 包括108 个流多处理器（SMs）和 40 GB 全局内存，每个 Intel Xeon（R） Gold 5318Y 2.10GHz CPU 拥有24个计算核心，总计96个计算核心。操作系统为 Linux 内核-5.4.0。在默认情况下，GMBE算法及相关变种在单个A100 GPU上执行，其他现有的基于CPU的比较算法均在CPU上执行。
 
 \input{text/tab_dataset_gmbe}
 
@@ -305,7 +305,7 @@ $\Delta(V)$， 和 $\Delta_2(V)$。由于二分图中$U$和$V$是对称的，在
     % \vspace{0.05in}
 		\includegraphics[width=\linewidth]{gmbe/overall}
     % \vspace{0.05in}
-	\caption{GMBE整体运行时间评估(对数形式)}
+	\caption{GMBE整体运行时间评估（对数形式）}
 	\label{fig:gmbe_exp_overall}
 \end{figure}
 
@@ -336,7 +336,7 @@ $\Delta(V)$， 和 $\Delta_2(V)$。由于二分图中$U$和$V$是对称的，在
   \vspace{0.05in}
 	\includegraphics[width=0.8\linewidth]{gmbe/optimization.pdf}	
 	\vspace{0.05in}
-  \caption{剪枝方法和任务调度方法的细分评估 (对数形式)}
+  \caption{剪枝方法和任务调度方法的细分评估 （对数形式）}
 	\label{fig:gmbe_exp_optimization}
 \end{figure}
 
@@ -412,7 +412,7 @@ $\Delta(V)$， 和 $\Delta_2(V)$。由于二分图中$U$和$V$是对称的，在
   \vspace{0.1in}
 	\includegraphics[width=0.75\linewidth]{gmbe/cost_function.pdf}	
 	\vspace{0.1in}
-  \caption{负载感知任务调度下阈值$bound\_height$ 和 $bound\_size$设置 (对数形式)}
+  \caption{负载感知任务调度下阈值$bound\_height$ 和 $bound\_size$设置 （对数形式）}
 	\label{fig:gmbe_exp_cost}
 \end{figure}
 
@@ -425,7 +425,7 @@ $\Delta(V)$， 和 $\Delta_2(V)$。由于二分图中$U$和$V$是对称的，在
   \vspace{0.1in}
 	\includegraphics[width=0.75\linewidth]{gmbe/parameters.pdf}	
 	\vspace{0.1in}
-  \caption{参数\textsf{WarpPerSM}设置 (对数形式)}
+  \caption{参数\textsf{WarpPerSM}设置 （对数形式）}
 	\label{fig:gmbe_exp_config}
 \end{figure}
 
@@ -435,7 +435,7 @@ $\Delta(V)$， 和 $\Delta_2(V)$。由于二分图中$U$和$V$是对称的，在
 	\centering
 	\includegraphics[width=0.75\linewidth]{gmbe/diffgpus.pdf}	
 	\vspace{0.1in}
-  \caption{GMBE在不同型号GPU上的适用性(对数形式)}
+  \caption{GMBE在不同型号GPU上的适用性（对数形式）}
 	\label{fig:gmbe_exp_diff}
 \end{figure}
 
@@ -460,8 +460,8 @@ $\Delta(V)$， 和 $\Delta_2(V)$。由于二分图中$U$和$V$是对称的，在
 
 \end{figure}
 
-\textbf{多GPU环境下的可扩展性。} 为了探究GMBE在多GPU环境下的可扩展性，我们在一台配备了8个NVIDIA V100 GPU的机器上进行了实验。为了优化GMBE以适应多GPU配置，我们将问题分解为多个独立的子问题，总执行时间由运行时间最长的子问题决定。 图~\ref{fig:gmbe_exp_scale} 显示，随着GPU数量的增加，GMBE在Github和BookCrossing数据集上呈线性扩展，因为每个GPU几乎同时完成其执行。在多个GPU的帮助下，GMBE能够在31秒内枚举出Github数据集中超过5500万个极大二分团，相较于96核CPU机器上最先进的并行MBE算法ParMBE（即2411秒），性能提升了77倍。
+\textbf{多GPU环境下的可扩展性。} 为了探究GMBE在多GPU环境下的可扩展性，我们在一台配备了8个NVIDIA V100 GPU的机器上进行了实验。为了优化GMBE以适应多GPU配置，我们将问题分解为多个独立的子问题，总运行时间由运行时间最长的子问题决定。 图~\ref{fig:gmbe_exp_scale} 显示，随着GPU数量的增加，GMBE在Github和BookCrossing数据集上呈线性扩展，因为每个GPU几乎同时完成其执行。在多个GPU的帮助下，GMBE能够在31秒内枚举出Github数据集中超过5500万个极大二分团，相较于96核CPU机器上最先进的并行MBE算法ParMBE（即2411秒），性能提升了77倍。
 
 \section{本章小结}
 
-本章介绍了针对极大二分团枚举问题的高效GPU解决方案GMBE。首先，针对GPU上运行极大二分团枚举算法所带来的内存短缺问题，我们提出了基于节点重用的迭代计算流程，通过重用根节点内存，减小动态内存分配带来的内存开销。其次，针对现有剪枝方法引入的线程分歧问题，本章提出了基于局部邻居数量感知的剪枝方法，通过对中间结果的批量比较，在实现高效剪枝性能的同时缓解了线程分歧问题。再次，针对现有方法难以实现极大二分团枚举任务负载均衡的问题，本章提出了负载感知的任务调度方法，动态识别并拆分具有高负载的任务，实现细粒度的任务调度。最后，我们结合上述技术，实现了GMBE算法。实验结果充分证明了GMBE算法在GPU上的卓越性能以及本章中所有方法的具体作用。
+本章介绍了针对极大二分团枚举问题的高效GPU解决方案GMBE。首先，针对GPU上运行极大二分团枚举算法所带来的内存短缺问题，我们提出了基于节点重用的迭代计算流程，通过重用根节点内存，减小动态内存分配带来的内存开销。其次，针对现有剪枝方法引入的线程分歧问题，本章提出了基于局部邻居数量感知的剪枝方法，通过对中间结果的批量比较，在实现高效剪枝性能的同时缓解了线程分歧问题。再次，针对现有方法难以实现极大二分团枚举任务负载均衡的问题，本章提出了负载感知的任务调度方法，动态识别并拆分具有高负载的任务，实现细粒度的任务调度。最后，我们结合上述技术，实现了GMBE算法。实验结果充分证明了GMBE算法在GPU上的高性能以及本章中所有方法的具体作用。

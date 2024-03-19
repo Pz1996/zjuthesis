@@ -34,3 +34,5 @@ pictureWidthShort = 250
 pictureWidthLong = 360
 pictureHeight = 82
 
+pictureWidthMini = 120
+pictureHeightMini = 120 * 0.618

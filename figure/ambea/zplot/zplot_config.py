@@ -30,7 +30,7 @@ fig_colors_light= ['lightcoral', 'mintcream', 'antiquewhite', 'azure','lavenderb
 fig_colors_multigpu=['wheat', 'darkseagreen','lightblue', 'lightcoral','antiquewhite','mintcream','mistyrose','azure']
 
 
-pictureWidthShort = 150
-pictureWidthLong = 540
+pictureWidthShort = 250
+pictureWidthLong = 360
 pictureHeight = 82
 

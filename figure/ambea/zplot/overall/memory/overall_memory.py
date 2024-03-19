@@ -122,7 +122,7 @@ for i in range(len(time)):
 #         text='2.2x', size=3, anchor='l,h')
 
 #### legend
-L.draw(canvas=c, coord=[d.left()+3, d.top()+10], skipnext=1, skipspace=94,
+L.draw(canvas=c, coord=[d.left()+1, d.top()+10], skipnext=1, skipspace=62,
     hspace=3, fontsize=legendTextSize,  width=7, height=7 )
 # L_line.draw(canvas=c, coord=[d.left()+118, d.top()-9], width=10, height=15, fontsize=8, skipnext=1, skipspace=55)
 

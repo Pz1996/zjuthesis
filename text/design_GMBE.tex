@@ -19,7 +19,7 @@ GPU，即图形处理单元（Graphics Processing Unit），最初是专门用�
 
 图\ref{fig:gpu}展示了现代GPU的硬件架构和软件编程模型。GPU的\textbf{硬件架构}包括大量的计算核心，以及对应的层级存储结构。具体而言，一块现代GPU通常包括全局内存（global memory）、共享的L2缓存（cache）以及大量的流处理器 （streaming multiprocessor， SM）。每个流处理器包含单独的L1缓存、可编程的具有多分区（multi-bank）的共享内存（shared memory），以及多个轻量级计算核心（core）。主流的GPU可以配备上万个轻量级计算核心，提供了巨大的计算能力。然而，与丰富的计算资源相比，GPU上的内存资源相对有限。例如，近年备受青睐的NVIDIA A100~\cite{NVIDIA-A100}最多可以提供6912个核心，但只能提供最多80GB的全局内存。
 
-与GPU的多计算核心的硬件架构相对应，主流的\textbf{CUDA软件编程模型}按照层级结构管理大量线程。具体而言，CUDA编程模型提供了一个并行计算平台和一组API~\cite{CUDA-wiki，CUDAProgrammingGuide}，允许用户高效地利用GPU进行通用目的的处理。CUDA采用SIMT （single instruction， multiple threads）~\cite{SIMT-wiki} 执行模型来管理大量线程。它将GPU内核划分为多个网格 （grid），每个网格包含多个块 （block），每个块包括多个线程 （thread），并在执行期间分配给一个流处理器 （SM）。流处理器将32个并行线程分组成一个线程束 （warp），并同时执行多个线程束。通过这种方式，成千上万个GPU核心可以高效地并行工作，实现高性能计算。
+与GPU的多计算核心的硬件架构相对应，主流的\textbf{CUDA软件编程模型}按照层级结构管理大量线程。具体而言，CUDA编程模型提供了一个并行计算平台和一组API~\cite{CUDA-wiki,CUDAProgrammingGuide}，允许用户高效地利用GPU进行通用目的的处理。CUDA采用SIMT （single instruction， multiple threads）~\cite{SIMT-wiki} 执行模型来管理大量线程。它将GPU内核划分为多个网格 （grid），每个网格包含多个块 （block），每个块包括多个线程 （thread），并在执行期间分配给一个流处理器 （SM）。流处理器将32个并行线程分组成一个线程束 （warp），并同时执行多个线程束。通过这种方式，成千上万个GPU核心可以高效地并行工作，实现高性能计算。
 
 为了提升GPU的执行性效率，我们针对CUDA编程模型总结了\textbf{编程指南}如下：
 
@@ -270,14 +270,14 @@ GPU，即图形处理单元（Graphics Processing Unit），最初是专门用�
 
 基于以上所述技术要点，我们提出了基于GPU的高效极大二分团枚举算法GMBE。除了前文提及的主要技术要点之外，接下来将详细描述GMBE算法的具体实现细节。
 
-\textbf{二分图预处理。} 我们将输入的二分图$G$以压缩稀疏行（compressed sparse row，CSR）格式进行表示。首先将图$G$载入 CPU 内存，并快速提取图$G$ 的重要特征，如$|U|$， $|V|$， $|E|$， 
+\textbf{二分图预处理：} 我们将输入的二分图$G$以压缩稀疏行（compressed sparse row，CSR）格式进行表示。首先将图$G$载入 CPU 内存，并快速提取图$G$ 的重要特征，如$|U|$， $|V|$， $|E|$， 
 $\Delta(V)$， 和 $\Delta_2(V)$。由于二分图中$U$和$V$是对称的，在本文中我们总是选择顶点数较少的集合作为$V$，类似于ooMBEA~\cite{ooMBE22}。然后，我们通过按照顶点邻居数量递增的顺序对$V$中的所有顶点进行排序，类似于MineLMBC~\cite{minel06}和iMBEA~\cite{iMBEA14}，并对每个顶点的所有邻居列表按照顶点 ID 递增的顺序进行排序，类似于大多数相关工作~\cite{g2miner22,Kclique22}。最后，我们将整个二分图$G$传输到 GPU 的全局内存，并在 GPU 上枚举所有极大二分团，而无需从主机传输任何额外数据。
 
-\textbf{无锁任务队列。} 为了减少同步开销，我们使用 CUDA 中的 \textsf{atomicCAS} 原语以无锁方式管理任务队列。我们实现了一个两级任务排队机制以进一步改善负载平衡。具体来说，我们为每个线程块实现了一个局部任务队列，以便线程块中的所有线程束可以通过访问局部任务队列来平衡工作负载。此外，我们实现了一个全局任务队列来平衡不同线程块之间的工作负载。每个线程块只允许一个代理线程束来管理局部任务队列和全局任务队列之间的任务。我们使用共享内存实现局部任务队列，并在全局内存中实现全局任务队列，因为共享内存上的原子操作比全局内存上的原子操作更快。
+\textbf{无锁任务队列：} 为了减少同步开销，我们使用 CUDA 中的 \textsf{atomicCAS} 原语以无锁方式管理任务队列。我们实现了一个两级任务排队机制以进一步改善负载平衡。具体来说，我们为每个线程块实现了一个局部任务队列，以便线程块中的所有线程束可以通过访问局部任务队列来平衡工作负载。此外，我们实现了一个全局任务队列来平衡不同线程块之间的工作负载。每个线程块只允许一个代理线程束来管理局部任务队列和全局任务队列之间的任务。我们使用共享内存实现局部任务队列，并在全局内存中实现全局任务队列，因为共享内存上的原子操作比全局内存上的原子操作更快。
 
-\textbf{基于相交路径的集合并集操作。} 为了降低算法~\ref{alg:gmbe_task_full} 第11行计算2跳邻居的开销，我们在GPU上实现了基于相交路径的集合并集操作。这一方法受到了文献~\cite{GpuMergePathIntersect14} 的启发。具体而言，为了并行化集合并集操作，每个线程使用滑动窗口遍历一个相交路径，并在当前窗口内独立查找部分相交路径。最后，线程束中的所有线程同步部分结果，生成完整的相交路径。
+\textbf{基于相交路径的集合并集操作：} 为了降低算法~\ref{alg:gmbe_task_full} 第11行计算2跳邻居的开销，我们在GPU上实现了基于相交路径的集合并集操作。这一方法受到了文献~\cite{GpuMergePathIntersect14} 的启发。具体而言，为了并行化集合并集操作，每个线程使用滑动窗口遍历一个相交路径，并在当前窗口内独立查找部分相交路径。最后，线程束中的所有线程同步部分结果，生成完整的相交路径。
 
-\textbf{多GPU上的GMBE算法实现。}高性能计算机可能由多个 GPU 组成，以加速应用执行性能。为了支持这种情况，我们可以轻松地将 GMBE 算法扩展到多 GPU 计算机。其基本思想是在所有 GPU 设备上共享算法~\ref{alg:gmbe_task_full} 中的全局变量$processing\_v$，并将第8行中的\textsf{atomicInc} 原语替换为 \textsf{atomicInc\_system}~\cite{CUDAProgrammingGuide}。因此，MBE 问题被划分为多个独立的子问题，并每个 GPU 独立处理这些子问题。整体运行时间由运行时间最长的 GPU 决定。实验结果显示，GMBE 在多个 GPU 上是高效的，因为多个 GPU 上的每个线程束可以使用原子原语自动平衡工作负载，几乎没有同步开销。从理论上讲，GMBE 也可以扩展到分布式计算环境，其中多台机器（每台机器都有一个或多个 GPU）通过网络连接。由于本文侧重于单机环境，我们将探索将 GMBE 应用于分布式多机集群作为未来工作。
+\textbf{多GPU上的GMBE算法实现：}高性能计算机可能由多个 GPU 组成，以加速应用执行性能。为了支持这种情况，我们可以轻松地将 GMBE 算法扩展到多 GPU 计算机。其基本思想是在所有 GPU 设备上共享算法~\ref{alg:gmbe_task_full} 中的全局变量$processing\_v$，并将第8行中的\textsf{atomicInc} 原语替换为 \textsf{atomicInc\_system}~\cite{CUDAProgrammingGuide}。因此，MBE 问题被划分为多个独立的子问题，并每个 GPU 独立处理这些子问题。整体运行时间由运行时间最长的 GPU 决定。实验结果显示，GMBE 在多个 GPU 上是高效的，因为多个 GPU 上的每个线程束可以使用原子原语自动平衡工作负载，几乎没有同步开销。从理论上讲，GMBE 也可以扩展到分布式计算环境，其中多台机器（每台机器都有一个或多个 GPU）通过网络连接。由于本文侧重于单机环境，我们将探索将 GMBE 应用于分布式多机集群作为未来工作。
 
 
 \section{实验评估}
@@ -285,15 +285,15 @@ $\Delta(V)$， 和 $\Delta_2(V)$。由于二分图中$U$和$V$是对称的，在
 
 \subsection{实验设置}
 
-\textbf{实验环境设置。} 本节的主要实验在一台配备有1个NVIDIA A100 GPU~\cite{NVIDIA-A100}和4个Intel Xeon（R） Gold 5318Y 2.10GHz CPU 的Linux服务器上进行。其中每个NVIDIA A100 GPU 包括108 个流多处理器（SMs）和 40 GB 全局内存，每个 Intel Xeon（R） Gold 5318Y 2.10GHz CPU 拥有24个计算核心，总计96个计算核心。操作系统为 Linux 内核-5.4.0。在默认情况下，GMBE算法及相关变种在单个A100 GPU上执行，其他现有的基于CPU的比较算法均在CPU上执行。
+\textbf{实验环境设置：} 本节的主要实验在一台配备有1个NVIDIA A100 GPU~\cite{NVIDIA-A100}和4个Intel Xeon（R） Gold 5318Y 2.10GHz CPU 的Linux服务器上进行。其中每个NVIDIA A100 GPU 包括108 个流多处理器（SMs）和 40 GB 全局内存，每个 Intel Xeon（R） Gold 5318Y 2.10GHz CPU 拥有24个计算核心，总计96个计算核心。操作系统为 Linux 内核-5.4.0。在默认情况下，GMBE算法及相关变种在单个A100 GPU上执行，其他现有的基于CPU的比较算法均在CPU上执行。
 
 \input{text/tab_dataset_gmbe}
 
-\textbf{数据集。} 本节使用 12 个真实世界数据集来验证 GMBE的性能，如表~\ref{tbl:gmbe_datasets} 所示。对于允许两个顶点之间存在多条边的数据集，例如 MovieLens（Mti），我们仅保留每对顶点之间的一个唯一边用于 MBE 分析。这些唯一边的数量用 $|E|$表示。由于在二分图中$U$和$V$是对称的，我们总是将顶点集合中拥有较少顶点的集合设置为$V$，即$|U|>|V|$。我们记录了顶点集的最大度数以及最大二跳度数，用于分析GMBE在特定数据集上的内存使用。我们从 SNAP 仓库~\cite{snapnets} 获取 Amazon 和 EuAll 数据集，并从 KONECT 仓库~\cite{konect} 获取其他数据集。由于 MBE 时间主要取决于数据集的极大二分团数量，我们将所有数据集按其极大二分团计数的升序排序。%在后续章节中，我们将大于两百万个极大二分团的数据集称为大数据集。
+\textbf{数据集：} 本节使用 12 个真实世界数据集来验证 GMBE的性能，如表~\ref{tbl:gmbe_datasets} 所示。对于允许两个顶点之间存在多条边的数据集，例如 MovieLens（Mti），我们仅保留每对顶点之间的一个唯一边用于 MBE 分析。这些唯一边的数量用 $|E|$表示。由于在二分图中$U$和$V$是对称的，我们总是将顶点集合中拥有较少顶点的集合设置为$V$，即$|U|>|V|$。我们记录了顶点集的最大度数以及最大二跳度数，用于分析GMBE在特定数据集上的内存使用。我们从 SNAP 仓库~\cite{snapnets} 获取 Amazon 和 EuAll 数据集，并从 KONECT 仓库~\cite{konect} 获取其他数据集。由于 MBE 时间主要取决于数据集的极大二分团数量，我们将所有数据集按其极大二分团计数的升序排序。%在后续章节中，我们将大于两百万个极大二分团的数据集称为大数据集。
 
-\textbf{比较算法。} 由于目前没有现有的 MBE 算法能在 GPU 上运行，我们将GMBE与面向 CPU 的 MBE 算法进行比较，包括最近的串行版本，即 MBEA~\cite{iMBEA14}、iMBEA~\cite{iMBEA14}、PMBE~\cite{PMBE20} 和ooMBEA~\cite{ooMBE22}，以及最前沿的并行 MBE 算法ParMBE~\cite{parMBE18}。为了公平比较，我们从作者处获取所有竞争对手的经过优化的代码，并在相同平台上运行它们。由于我们的服务器中仅有96个CPU计算核心，我们将ParMBE 设置为 96 个线程运行。
+\textbf{比较算法：} 由于目前没有现有的 MBE 算法能在 GPU 上运行，我们将GMBE与面向 CPU 的 MBE 算法进行比较，包括最近的串行版本，即 MBEA~\cite{iMBEA14}、iMBEA~\cite{iMBEA14}、PMBE~\cite{PMBE20} 和ooMBEA~\cite{ooMBE22}，以及最前沿的并行 MBE 算法ParMBE~\cite{parMBE18}。为了公平比较，我们从作者处获取所有竞争对手的经过优化的代码，并在相同平台上运行它们。由于我们的服务器中仅有96个CPU计算核心，我们将ParMBE 设置为 96 个线程运行。
 
-\textbf{测量方法。} 我们测量每个算法的运行时间，不包括从磁盘读取图所花费的时间。在没有特别说明的情况下，GMBE使用节点重用迭代枚举所有极大二分团，通过局部邻居数量裁剪无用节点，并应用负载感知的任务中心方案以实现负载平衡。默认情况下，GMBE将 $bound\_height$ 和 $bound\_size$的阈值分别设置为 20 和 1,500，将 \textsf{WarpPerSM} 设置为 16，并在枚举前根据顶点度按升序对$V$中顶点进行排序。我们还实现了其他变体来评估本文提出的技术，并将在相应的实验中详细介绍这些变体。
+\textbf{测量方法：} 我们测量每个算法的运行时间，不包括从磁盘读取图所花费的时间。在没有特别说明的情况下，GMBE使用节点重用迭代枚举所有极大二分团，通过局部邻居数量裁剪无用节点，并应用负载感知的任务中心方案以实现负载平衡。默认情况下，GMBE将 $bound\_height$ 和 $bound\_size$的阈值分别设置为 20 和 1,500，将 \textsf{WarpPerSM} 设置为 16，并在枚举前根据顶点度按升序对$V$中顶点进行排序。我们还实现了其他变体来评估本文提出的技术，并将在相应的实验中详细介绍这些变体。
 
 
 \subsection{整体评估}
@@ -326,7 +326,7 @@ $\Delta(V)$， 和 $\Delta_2(V)$。由于二分图中$U$和$V$是对称的，在
 \label{subsec:gmbe_breakdown}
 
 
-\textbf{节点重用方法的效果。} 为了研究第~\ref{subsec:gmbe_memory} 节中节点重用方法的效果，我们设计了变体 GMBE-w/o\_REUSE，根据第~\ref{subsec:gmbe_memory} 节的要求在 GPU 上预先分配内存。我们分别估计了 GMBE 在是否开启节点重用优化方法的情况下使用 \textsf{cudaMalloc} 原语分配的内存需求。这些内存需求包括用于输入二分图和运行时子树的预分配内存。图~\ref{fig:gmbe_exp_memory} 显示，节点重用方法在所有测试数据集上将内存需求显著减少了 49倍--4,819倍。而 GMBE-w/o\_REUSE 在多个数据集上内存需求超出了 A100 GPU 的内存容量，导致无法运行。
+\textbf{节点重用方法的效果：} 为了研究第~\ref{subsec:gmbe_memory} 节中节点重用方法的效果，我们设计了变体 GMBE-w/o\_REUSE，根据第~\ref{subsec:gmbe_memory} 节的要求在 GPU 上预先分配内存。我们分别估计了 GMBE 在是否开启节点重用优化方法的情况下使用 \textsf{cudaMalloc} 原语分配的内存需求。这些内存需求包括用于输入二分图和运行时子树的预分配内存。图~\ref{fig:gmbe_exp_memory} 显示，节点重用方法在所有测试数据集上将内存需求显著减少了 49倍--4,819倍。而 GMBE-w/o\_REUSE 在多个数据集上内存需求超出了 A100 GPU 的内存容量，导致无法运行。
 
 
 
@@ -370,36 +370,36 @@ $\Delta(V)$， 和 $\Delta_2(V)$。由于二分图中$U$和$V$是对称的，在
   \vspace{-0.1in}
 \end{table}
 
-\textbf{剪枝方法的效果。} 为了研究第~\ref{subsec:gmbe_thread_divergence} 节中基于局部邻居数量的剪枝方法的效果，我们设计了一个变体 GMBE-w/o\_PRUNE，仅禁用了 GMBE 的剪枝功能。如图~\ref{fig:gmbe_exp_optimization} 所示，GMBE 总是优于 GMBE-w/o\_PRUNE。这是因为基于局部邻居数量的剪枝方法通过批量比较局部邻居，在控制线程分歧的同时裁剪了大量极大二分团枚举问题的搜索空间。同时，剪枝方法通过比较候选顶点集中相同顶点的局部邻居数量来增强内存访问的连续性。
+\textbf{剪枝方法的效果：} 为了研究第~\ref{subsec:gmbe_thread_divergence} 节中基于局部邻居数量的剪枝方法的效果，我们设计了一个变体 GMBE-w/o\_PRUNE，仅禁用了 GMBE 的剪枝功能。如图~\ref{fig:gmbe_exp_optimization} 所示，GMBE 总是优于 GMBE-w/o\_PRUNE。这是因为基于局部邻居数量的剪枝方法通过批量比较局部邻居，在控制线程分歧的同时裁剪了大量极大二分团枚举问题的搜索空间。同时，剪枝方法通过比较候选顶点集中相同顶点的局部邻居数量来增强内存访问的连续性。
 为了进一步探索剪枝的效率，我们使用$\alpha$表示极大二分团的数量，使用$\delta$表示通过节点检查（算法~\ref{alg:gmbe_stack} 的第18行）生成的被剪枝的非极大二分团的数量。由于$\alpha$对于每个数据集都保持不变，我们使用比值$\delta/\alpha$来表示 GMBE 和 GMBE-w/o\_PRUNE 的剪枝效率，如表~\ref{tbl:gmbe_prune} 所示。
 通过比较 GMBE 和 GMBE-w/o\_PRUNE 的$\delta/\alpha$比值，我们观察到所提出的剪枝方法可以在所有测试数据集中避免 48.7\%-92.8\% 的非极大二分团检查。由于极大二分团枚举任务的枚举空间随着极大二分团数量的增加而增长，剪枝技术在更大的数据集中尤为重要。具体而言，剪枝方法将运行时间从 Github 上的 1,191 秒显著减少到 132 秒。
 
 \begin{figure} 
 	\centering
   \subfloat[StackOverflow]	{
-		\includegraphics[width=0.7\linewidth]{gmbe/load_balance_so.pdf}
+		\includegraphics[width=0.47\linewidth]{gmbe/load_balance_so.pdf}
 		\label{fig:derive_in_place}
-	} \\
+	} 
 	\subfloat[EuAll]{
-		\includegraphics[width=0.7\linewidth]{gmbe/load_balance_ea.pdf}
+		\includegraphics[width=0.47\linewidth]{gmbe/load_balance_ea.pdf}
 		\label{fig:balance_euall}
 	} \\
 	\subfloat[BookCrossing]	{
-		\includegraphics[width=0.7\linewidth]{gmbe/load_balance_bx.pdf}
+		\includegraphics[width=0.47\linewidth]{gmbe/load_balance_bx.pdf}
 		\label{fig:balance_bookcrossing}
-	}	\\
+	}	
   \subfloat[Github]	{
-		\includegraphics[width=0.7\linewidth]{gmbe/load_balance_gh.pdf}
+		\includegraphics[width=0.47\linewidth]{gmbe/load_balance_gh.pdf}
 		\label{fig:balance_github}
 	}
 
-	\caption{GMBE、GMBE-WARP和GMBE-BLOCK之间SM上的运行时负载比较}
+	\caption{不同调度方法中SM上的运行时负载比较}
 
 	\label{fig:gmbe_exp_balance}
 \end{figure}
 
 
-\textbf{任务调度方法的效果。} 为研究第~\ref{subsec:gmbe_design_load}节中负载感知任务调度方法的效果，我们设计了两个变体 GMBE-WARP 和 GMBE-BLOCK，分别采用基于线程束和基于线程块的方案。如图~\ref{fig:gmbe_exp_optimization}所示，在包括 EuALL、Github、BookCrossing、StackOverflow 和 IMDB 在内的大型数据集上，GMBE明显比 GMBE-WARP 和 GMBE-BLOCK 更快，并在其他数据集上花费不到一秒的时间。在大型数据集上，GMBE 的性能更好，因为它动态检测和分区具有重负载的任务，并管理无锁任务队列以在更细粒度上重新平衡工作负载。结果，GMBE 在 EuAll 上比 GMBE-WARP 快 44.7倍，比 GMBE-BLOCK 快 9.3倍。
+\textbf{任务调度方法的效果：} 为研究第~\ref{subsec:gmbe_design_load}节中负载感知任务调度方法的效果，我们设计了两个变体 GMBE-WARP 和 GMBE-BLOCK，分别采用基于线程束和基于线程块的方案。如图~\ref{fig:gmbe_exp_optimization}所示，在包括 EuALL、Github、BookCrossing、StackOverflow 和 IMDB 在内的大型数据集上，GMBE明显比 GMBE-WARP 和 GMBE-BLOCK 更快，并在其他数据集上花费不到一秒的时间。在大型数据集上，GMBE 的性能更好，因为它动态检测和分区具有重负载的任务，并管理无锁任务队列以在更细粒度上重新平衡工作负载。结果，GMBE 在 EuAll 上比 GMBE-WARP 快 44.7倍，比 GMBE-BLOCK 快 9.3倍。
 
 为了更深入地探究 GPU 上 MBE 存在的负载不平衡问题，我们记录了在运行 GMBE、GMBE-WARP 和 GMBE-BLOCK 时活跃的流处理器（SM）数量。图~\ref{fig:gmbe_exp_balance} 对比展示了在StackOverflow、EuALL、BookCrossing 和 Github 数据集上 SM 的运行负载。由于存在工作负载不平衡，一些负载较轻的 SM 可能会提前完成并等待那些负载较重的 SM，这将增加整体运行时间。由于负载不平衡的存在，GMBE-WARP 中活跃的 SM 数量迅速减少，因而表现最差。相比之下，GMBE-BLOCK 获得了更好的性能，因为它可以为每个工作负载分配更多资源（即一个线程块而非一个线程束），从而减少了等待具有最重负载的 SM 的时间。然而，GMBE-BLOCK仍然存在不足，因为 MBE 问题的工作负载可能严重不平衡。例如，在 EuALL 数据集上，超过 80\% 的 SM（86 个 SM / 108 个 SM）浪费了超过 80\% 的运行时间（98 秒 / 118 秒）在等待最慢的 SM。相比之下，GMBE 总是能够实现最佳性能，因为它能够在最细粒度上工作，使得每个 SM 大致同时完成其工作。在 BookCrossing 数据集上，甚至在 GMBE-BLOCK 的活跃 SM 数量开始减少之前，GMBE 就已经完成了运算，因为它在每个 SM 中激活了所有的线程束，而相比之下，GMBE-BLOCK 在运行时可能只使用了每个 SM 中的一小部分线程束。
 
@@ -417,7 +417,7 @@ $\Delta(V)$， 和 $\Delta_2(V)$。由于二分图中$U$和$V$是对称的，在
 \end{figure}
 
 
-\textbf{负载感知任务调度阈值对性能的影响。} 为了探究在~\ref{subsec:gmbe_design_load}节中阈值 $bound\_height$ 和 $bound\_size$ 的有效配置，我们设计了多个变种 GMBE-$(m, n)$，其中$m$ 和 $n$ 分别代表 $bound\_height$ 和 $bound\_size$。我们总是设置 $m$ 大于 $n^2$，因为我们知道  $|L|\times|C|$ 始终大于或等于 $(min\{|L|,|C|\})^2$。阈值的选择是并行粒度和同步开销之间的权衡。我们需要更小的阈值来在更细的粒度上平衡工作负载。然而，阈值不应该过小。否则，我们将不得不处理更多带有巨大同步开销的任务。图~\ref{fig:gmbe_exp_cost} 表明，在大多数情况下，变种 GMBE-(20, 1500) 在运行时间上优于其他变种。因此，GMBE默认应用这种配置。
+\textbf{负载感知任务调度阈值对性能的影响：} 为了探究在~\ref{subsec:gmbe_design_load}节中阈值 $bound\_height$ 和 $bound\_size$ 的有效配置，我们设计了多个变种 GMBE-$(m, n)$，其中$m$ 和 $n$ 分别代表 $bound\_height$ 和 $bound\_size$。我们总是设置 $m$ 大于 $n^2$，因为我们知道  $|L|\times|C|$ 始终大于或等于 $(min\{|L|,|C|\})^2$。阈值的选择是并行粒度和同步开销之间的权衡。我们需要更小的阈值来在更细的粒度上平衡工作负载。然而，阈值不应该过小。否则，我们将不得不处理更多带有巨大同步开销的任务。图~\ref{fig:gmbe_exp_cost} 表明，在大多数情况下，变种 GMBE-(20, 1500) 在运行时间上优于其他变种。因此，GMBE默认应用这种配置。
 
 
 \begin{figure} [H]
@@ -429,7 +429,7 @@ $\Delta(V)$， 和 $\Delta_2(V)$。由于二分图中$U$和$V$是对称的，在
 	\label{fig:gmbe_exp_config}
 \end{figure}
 
-\textbf{每个流处理器中线程束数量的影响。} 为确定第~\ref{subsec:gmbe_design_load} 节中 PT 模型中参数 \textsf{WarpPerSM}，我们设计了将 \textsf{WarpPerSM} 设置为 8、16、24 和 32 的不同变种。参数\textsf{WarpPerSM} 的选择是并行性和每个线程束资源之间的权衡。直觉上，我们希望 \textsf{WarpPerSM} 更大，以便可以并行运行更多的 MBE 任务。然而，\textsf{WarpPerSM} 不应该过大，因为每个流多处理器中的计算资源（例如寄存器）是有限的。较大的 \textsf{WarpPerSM} 可能会降低 GMBE的性能，因为每个线程束将拥有更少的资源来运行 MBE 任务。图~\ref{fig:gmbe_exp_config} 显示，在大多数大型数据集（如 BookCrossing、StackOverflow、IMDB、DBLP 和 EuAll）中，变种 GMBE-16的性能优于其他变种高达 3.83倍。此外，由于其广泛的枚举空间需要更多线程束并行枚举极大二分团，GMBE-16在 Github 上比 GMBE-32慢 0.94倍。考虑到在大多数情况下的效率，GMBE默认将 \textsf{WarpPerSM} 设置为 16。
+\textbf{每个流处理器中线程束数量的影响：} 为确定第~\ref{subsec:gmbe_design_load} 节中 PT 模型中参数 \textsf{WarpPerSM}，我们设计了将 \textsf{WarpPerSM} 设置为 8、16、24 和 32 的不同变种。参数\textsf{WarpPerSM} 的选择是并行性和每个线程束资源之间的权衡。直觉上，我们希望 \textsf{WarpPerSM} 更大，以便可以并行运行更多的 MBE 任务。然而，\textsf{WarpPerSM} 不应该过大，因为每个流多处理器中的计算资源（例如寄存器）是有限的。较大的 \textsf{WarpPerSM} 可能会降低 GMBE的性能，因为每个线程束将拥有更少的资源来运行 MBE 任务。图~\ref{fig:gmbe_exp_config} 显示，在大多数大型数据集（如 BookCrossing、StackOverflow、IMDB、DBLP 和 EuAll）中，变种 GMBE-16的性能优于其他变种高达 3.83倍。此外，由于其广泛的枚举空间需要更多线程束并行枚举极大二分团，GMBE-16在 Github 上比 GMBE-32慢 0.94倍。考虑到在大多数情况下的效率，GMBE默认将 \textsf{WarpPerSM} 设置为 16。
 
 \begin{figure} [H]
 	\centering
@@ -439,7 +439,7 @@ $\Delta(V)$， 和 $\Delta_2(V)$。由于二分图中$U$和$V$是对称的，在
 	\label{fig:gmbe_exp_diff}
 \end{figure}
 
-\textbf{在不同GPU上的适用性。} 为了探究GMBE在不同GPU上的适用性，我们分别在NVIDIA A100 GPU（108个流多处理器，40 GB全局内存）、NVIDIA V100 GPU（80个流多处理器，32 GB全局内存）~\cite{NVIDIA-V100}和NVIDIA 2080Ti GPU（68个流多处理器，11 GB全局内存）~\cite{NVIDIA-2080Ti}上对GMBE进行评估。图~\ref{fig:gmbe_exp_diff} 显示GMBE在所有三种GPU上都表现出了适用性。GMBE-A100 稍微快于 GMBE-V100 和 GMBE-2080Ti，因为A100 GPU包含比其他GPU更多的计算资源。
+\textbf{在不同GPU上的适用性：} 为了探究GMBE在不同GPU上的适用性，我们分别在NVIDIA A100 GPU（108个流多处理器，40 GB全局内存）、NVIDIA V100 GPU（80个流多处理器，32 GB全局内存）~\cite{NVIDIA-V100}和NVIDIA 2080Ti GPU（68个流多处理器，11 GB全局内存）~\cite{NVIDIA-2080Ti}上对GMBE进行评估。图~\ref{fig:gmbe_exp_diff} 显示GMBE在所有三种GPU上都表现出了适用性。GMBE-A100 稍微快于 GMBE-V100 和 GMBE-2080Ti，因为A100 GPU包含比其他GPU更多的计算资源。
 
 \begin{figure} [t]
 	\centering
@@ -460,7 +460,7 @@ $\Delta(V)$， 和 $\Delta_2(V)$。由于二分图中$U$和$V$是对称的，在
 
 \end{figure}
 
-\textbf{多GPU环境下的可扩展性。} 为了探究GMBE在多GPU环境下的可扩展性，我们在一台配备了8个NVIDIA V100 GPU的机器上进行了实验。为了优化GMBE以适应多GPU配置，我们将问题分解为多个独立的子问题，总运行时间由运行时间最长的子问题决定。 图~\ref{fig:gmbe_exp_scale} 显示，随着GPU数量的增加，GMBE在Github和BookCrossing数据集上呈线性扩展，因为每个GPU几乎同时完成其执行。在多个GPU的帮助下，GMBE能够在31秒内枚举出Github数据集中超过5500万个极大二分团，相较于96核CPU机器上最先进的并行MBE算法ParMBE（即2411秒），性能提升了77倍。
+\textbf{多GPU环境下的可扩展性：} 为了探究GMBE在多GPU环境下的可扩展性，我们在一台配备了8个NVIDIA V100 GPU的机器上进行了实验。为了优化GMBE以适应多GPU配置，我们将问题分解为多个独立的子问题，总运行时间由运行时间最长的子问题决定。 图~\ref{fig:gmbe_exp_scale} 显示，随着GPU数量的增加，GMBE在Github和BookCrossing数据集上呈线性扩展，因为每个GPU几乎同时完成其执行。在多个GPU的帮助下，GMBE能够在31秒内枚举出Github数据集中超过5500万个极大二分团，相较于96核CPU机器上最先进的并行MBE算法ParMBE（即2411秒），性能提升了77倍。
 
 \section{本章小结}
 

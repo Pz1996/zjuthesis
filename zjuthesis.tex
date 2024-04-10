@@ -29,12 +29,12 @@
     MajorFormat     = general,
     Degree          = graduate,        % 'undergraduate' or 'graduate'
     Type            = thesis,          % 'thesis'   or 'design'
-    Period          = final,           % 'proposal' or 'paper' or 'final'
-    BlindReview     = false,           % 'false'    or 'true'
+    Period          = paper,           % 'proposal' or 'paper' or 'final'
+    BlindReview     = true,           % 'false'    or 'true'
     Language        = chinese,         % 'chinese'  or 'english'
     % Graduate Thesis Info
     GradLevel       = doctor,          % 'master' or 'doctor'
-    Topic           = 计算机体系结构，图计算,
+    Topic           = 图计算, 计算机体系结构，
     ColaboratorName = 合作导师,
     % Table of Contents
     ListOfContents  = true,
@@ -152,7 +152,7 @@
     % Main contents
     \bodystyle
     \inputbody{content}
-
+    
     % Post part
     \poststyle
     \inputbody{post}

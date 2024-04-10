@@ -65,37 +65,26 @@ bartypes = [('solid', 1, 4),
             ('solid', 1, 4),
             ('solid', 1, 1),]
 
-#series_list = ['MBEA','iMBEA','PMBE','MineLMBC','FMBE','MMBEA_FAST','MMBEA_MIN','MMBEA']
-#series_name = ['MBEA','iMBEA','PMBE','MineLMBC','FMBE','MMBEA_FAST','MMBEA_MIN','MMBEA']
+
 series_list = ['Baseline', 'AdaMBE_NC']
-series_name = ['Baseline', 'AdaMBE_LNC']
-bgcolors    = ['white', 'white', 'white', 'white', 'white','lightgrey', 'lightgrey', 'black']
-fillcolors  = ['whitesmoke','lightcoral','darkseagreen','honeydew','whitesmoke']
-# ['darkgreen', 'lightcyan', 'lightyellow', 'black', 'black','black', 'black', 'black',]
+series_names = ['Baseline - non-maximal bicliques', 'AdaMBE-LCG - non-maximal bicliques']
+maximal_series_names = ['Baseline - maximal bicliques', 'AdaMBE-LCG - maximal bicliques']
+bgcolors    = ['darkseagreen', 'lightcoral']
+fillcolors  = ['darkseagreen', 'lightcoral']
+linecolors  = ['black', 'black']
 
 for i in range(len(series_list)):
     p.verticalbars(drawable=d, table=t, xfield='rownumber', yfield=series_list[i],
-               barwidth=0.7, 
-               linewidth=0.7, cluster =[i,len(series_list)], legend=L, legendtext=series_name[i],
-               labelformat='%s samples/ms',labelrotate=0,labelsize=8,
-               fill=True, fillcolor=fillcolors[i], bgcolor=bgcolors[i],
-               fillstyle=bartypes[i][0], fillsize=0.4, fillskip=bartypes[i][2])
+                barwidth=0.7, linecolor=linecolors[i],
+                linewidth=0.7, cluster =[i,len(series_list)], legend=L, legendtext=series_names[i],
+                fill=True, fillcolor=fillcolors[i], bgcolor=bgcolors[i],
+                fillstyle=bartypes[i][0], fillsize=0.4, fillskip=bartypes[i][2])
     
-p.verticalbars(drawable=d, table=t, xfield='rownumber', yfield='Overlap',
-            barwidth=0.7, 
-            linewidth=0.7, cluster =[0,1], legend=L, legendtext='Maximal bicliques',
-            labelformat='%s samples/ms',labelrotate=0,labelsize=8,
-            fill=True, fillcolor='black', bgcolor='',
-            fillstyle='dline2', fillsize=1, fillskip=2)
-
-
-# max line
-# p.line(drawable=d, table=t, xfield='rownumber', yfield='CSwap_max', linecolor='black',
-#                linewidth=0.6,legend=L_line)
-#
-# p.points(drawable=d, table=t, xfield='rownumber', yfield='CSwap_max', linecolor='black',
-#                  linewidth=0.7, style='circle', fill=False, fillcolor='black', size=0.8,
-#                 legend=L, legendtext='CSwap max')
+    p.verticalbars(drawable=d, table=t, xfield='rownumber', yfield='Overlap',
+                barwidth=0.7, linecolor=linecolors[i], 
+                linewidth=0.7, cluster =[i,len(series_list)], legend=L, legendtext=maximal_series_names[i],
+                fill=True, fillcolor=fillcolors[i], bgcolor='white',
+                fillstyle='dline2', fillsize=0.7, fillskip=3)
 
 
 ### text for each normalized time
@@ -106,7 +95,7 @@ rindex = t.getrindex()
 rows  = t.query()
 
 #### legend
-L.draw(canvas=c, coord=[d.left()+4, d.top()+10], skipnext=1, skipspace=87,
+L.draw(canvas=c, coord=[d.left()+4, d.top()+18], skipnext=2, skipspace=147,
     hspace=3, fontsize=legendTextSize,  width=7, height=7 )
 # L_line.draw(canvas=c, coord=[d.left()+118, d.top()-9], width=10, height=15, fontsize=8, skipnext=1, skipspace=55)
 

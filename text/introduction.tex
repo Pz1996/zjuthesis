@@ -47,16 +47,16 @@
   二分图中的极大二分团枚举问题是在一个无向无权二分图$G(U,V,E)$中的特定的图挖掘问题。随后，我们正式定义二分团、极大二分团以及极大二分团枚举问题。
 
 \begin{definition}
-  \textbf{（二分团）} 二分团（biclique）是二分图$G(U,V,E)$中的稠密二分子图$(L,R,E')$。其中$L\subseteq U$， $R\subseteq V$， $E' = L \times R \subseteq E$。为了方便，下文中我们直接用顶点集对$(L,R)$表示二分团。
+  \textbf{（二分团）} 二分团（Biclique）是二分图$G(U,V,E)$中的稠密二分子图$(L,R,E')$。其中$L\subseteq U$， $R\subseteq V$， $E' = L \times R \subseteq E$。为了方便，下文中我们直接用顶点集对$(L,R)$表示二分团。
 \end{definition}
 
 \begin{definition}
-  \textbf{（极大二分团）} 极大二分团（maximal biclique）是二分图$G$中的一个二分团，且该二分团不能再添加其他顶点使其成为更大的二分团。
+  \textbf{（极大二分团）} 极大二分团（Maximal Biclique）是二分图$G$中的一个二分团，且该二分团不能再添加其他顶点使其成为更大的二分团。
   \label{def:mb}
 \end{definition}
 
 \begin{definition}
-  \textbf{（极大二分团枚举问题）} 本文所研究的极大二分团枚举问题(maximal biclique enumeration， MBE)的目标是无重复、无遗漏地枚举二分图中的全部极大二分团。
+  \textbf{（极大二分团枚举问题）} 本文所研究的极大二分团枚举问题(Maximal Biclique Enumeration， MBE)的目标是无重复、无遗漏地枚举二分图中的全部极大二分团。
 \end{definition}
 
 \begin{figure} [ht]
@@ -96,7 +96,7 @@
 \label{subsec:se}
 
 
-\textbf{集合枚举树}（set enumeration tree， SE tree）是一种用于有序地枚举特定集合全部子集的数据结构，即枚举该集合的幂集~\cite{SEtree92}。它为解决搜索空间为特定集合幂集的子集的问题提供了一种完整且无冗余的搜索技术。具体而言，集合枚举树如图~\ref{fig:se_naive} 所示，根节点表示空集，每个节点对应一个子集，其子节点代表在该子集基础上添加一个新元素所得到的子集。对于二分图中的极大二分团枚举问题而言，每个二分团的集合$R$即为二分图中集合$V$的一个独特子集。因此，通过引入集合枚举树可以无重复、无遗漏地枚举全部可能的极大二分团，进而有效地求解极大二分团枚举问题。
+\textbf{集合枚举树}（Set Enumeration Tree， SE tree）是一种用于有序地枚举特定集合全部子集的数据结构，即枚举该集合的幂集~\cite{SEtree92}。它为解决搜索空间为特定集合幂集的子集的问题提供了一种完整且无冗余的搜索技术。具体而言，集合枚举树如图~\ref{fig:se_naive} 所示，根节点表示空集，每个节点对应一个子集，其子节点代表在该子集基础上添加一个新元素所得到的子集。对于二分图中的极大二分团枚举问题而言，每个二分团的集合$R$即为二分图中集合$V$的一个独特子集。因此，通过引入集合枚举树可以无重复、无遗漏地枚举全部可能的极大二分团，进而有效地求解极大二分团枚举问题。
 
 对于应用于极大二分团枚举问题的集合枚举树，我们从以下三个角度对其进行了规范化描述：
 

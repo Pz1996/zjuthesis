@@ -67,8 +67,8 @@ bartypes = [('solid', 1, 4),
 
 #series_list = ['MBEA','iMBEA','PMBE','MineLMBC','FMBE','MMBEA_FAST','MMBEA_MIN','MMBEA']
 #series_name = ['MBEA','iMBEA','PMBE','MineLMBC','FMBE','MMBEA_FAST','MMBEA_MIN','MMBEA']
-series_list = ['Baseline', 'BDS', 'LNC','AdaMBE']
-series_name = ['Baseline','AdaMBE-BDS','AdaMBE-LNC','AdaMBE']
+series_list = ['Baseline', 'LNC', 'BDS','AdaMBE']
+series_name = ['Baseline','AdaMBE-LCG','AdaMBE-BDS','AdaMBE']
 bgcolors    = ['white', 'white', 'white', 'white', 'white','lightgrey', 'lightgrey', 'black']
 fillcolors  = ['whitesmoke','lightblue','darkseagreen','lightcoral','whitesmoke']
 # ['darkgreen', 'lightcyan', 'lightyellow', 'black', 'black','black', 'black', 'black',]

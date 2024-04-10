@@ -12,16 +12,16 @@
     \REQUIRE 二分图 $G(U,V,E)$
     \ENSURE 所有极大二分团
     \STATE 将$V$中顶点按照邻居数量递增排序;
-    \STATE \textsf{AdaMBE\_search}($U, \emptyset, V, G$) ;
+    \STATE \textsf{biclique\_search\_adambe}($U, \emptyset, V, G$) ;
      
     \renewcommand{\algorithmicwhile}{\textbf{procedure}}
     \renewcommand{\algorithmicdo}{\textbf{:}}
     
 
-    \WHILE{\textsf{AdaMBE\_search}($L_p, R_p, C_p, CG_p$)}
+    \WHILE{\textsf{biclique\_search\_adambe}($L_p, R_p, C_p, CG_p$)}
       \IF{$|L_p|\le \tau$ 并且 $C_p$ 不为空}
         \STATE 创建基于位图的计算子图 $CG_{bit} (U_{bit}, V_{bit}, E_{bit})$ ;
-        \STATE \textsf{AdaMBE\_search\_bit}($L_p, R_p, C_p, CG_{bit}$) ;
+        \STATE \textsf{biclique\_search\_adambe\_bit}($L_p, R_p, C_p, CG_{bit}$) ;
         \STATE \textbf{Return} ;
       \ENDIF
       \FOR{$v' \in C_p$}
@@ -40,12 +40,12 @@
         \ENDFOR
         \IF{$R_q = \Gamma(L_q)$}
           \STATE 输出极大二分团 $(L_q, R_q)$ ;
-          \STATE \textsf{AdaMBE\_search}($L_q, R_q, C_q, CG_q$) ;
+          \STATE \textsf{biclique\_search\_adambe}($L_q, R_q, C_q, CG_q$) ;
         \ENDIF
         \STATE \textsf{free}($CG_q$) ; $C_p \leftarrow C_p \setminus \{v'\} $;
       \ENDFOR
     \ENDWHILE 
-
+  
   \end{algorithmic}
   \caption{AdaMBE算法}
   \label{alg:adambe}

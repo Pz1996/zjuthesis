@@ -8,7 +8,7 @@
     \renewcommand{\algorithmicwhile}{\textbf{procedure}}
     \renewcommand{\algorithmicdo}{\textbf{:}}
     
-    \WHILE{\textsf{AdaMBE\_search\_bit}($L_p, R_p, C_p, CG_{bit}$)}
+    \WHILE{\textsf{biclique\_search\_adambe\_bit}($L_p, R_p, C_p, CG_{bit}$)}
     \FOR{$v' \in C_p$}
       \STATE $L_q \leftarrow L_p$ \h{\&} $N_{bit}(v')$;
       \STATE $is\_maximal \leftarrow$ \textbf{True};
@@ -27,7 +27,7 @@
           \ENDIF
         \ENDFOR
         \STATE 输出极大二分团 $(L_q, R_q)$ ;
-        \STATE \textsf{AdaMBE\_search\_bit}($L_q, R_q, C_q, CG_{bit}$) ;
+        \STATE \textsf{biclique\_search\_adambe\_bit}($L_q, R_q, C_q, CG_{bit}$) ;
       \ENDIF
       \STATE $C_p \leftarrow C_p \setminus \{v'\} $ ;
     \ENDFOR

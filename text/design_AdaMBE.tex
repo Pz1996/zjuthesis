@@ -2,7 +2,7 @@
 \label{ch:adapt_mbe}
 
 针对极大二分团枚举问题计算不规则、静态数据结构效率低下的问题，本章整理了相关工作中不同的图存储数据结构，详细描述不同数据结构的优劣以及适用场景，并指出静态数据结构所导致的局限性，作为本章的研究动机。
-具体而言，现有算法通常使用静态图结构完成枚举，但忽略了枚举过程中子图动态变化的特性，导致在原图中进行大量无效内存访问；同时，现有算法采用邻接表存储二分图，导致高昂的集合运算开销。在这些因素的限制下，现有算法仅能处理包含不超过1亿极大二分团的小数据集。为了解决这些问题，本章提出以下优化方法：首先，本章提出了基于局部计算子图的优化方法，通过动态缓存枚举过程中的计算子图，优化算法的枚举过程，从而减少无效的顶点访问、集合运算和枚举节点。然后，本章提出了基于位图的动态子图方法，利用位图，通过规则高效的位运算加速了小计算子图中的集合运算。最后，本章结合上述两个技术点，形成自适应的极大二分团枚举算法AdaMBE。实验证明，AdaMBE算法比现有工作的运行时间缩短1.6-49.7倍，并成功应用于超过190亿极大二分团的TVTropes数据集。
+具体而言，现有算法通常使用静态图结构完成枚举，但忽略了枚举过程中子图动态变化的特性，导致在原图中进行大量无效内存访问；同时，现有算法采用邻接表存储二分图，导致高昂的集合运算开销。在这些因素的限制下，现有算法仅能处理包含不超过1亿极大二分团的小数据集。为了解决这些问题，本章提出以下优化方法：首先，本章提出了基于局部计算子图的优化方法，通过动态缓存枚举过程中的计算子图，优化算法的枚举过程，从而减少无效的顶点访问、集合运算和枚举节点。然后，本章提出了基于位图的动态子图方法，利用位图，通过规则高效的位运算加速了小型计算子图中的集合运算。最后，本章结合上述两个技术点，形成自适应的极大二分团枚举算法AdaMBE。实验证明，AdaMBE算法比现有工作的运行时间缩短1.6-49.7倍，并成功应用于超过190亿极大二分团的TVTropes数据集。
 
 
 
@@ -130,16 +130,16 @@
 	\centering
 	% \vspace{0.1in}
 	\subfloat[邻接表]{
-		\includegraphics[width=0.76\linewidth]{adambe/eg_intersection_adjlist}
+		\includegraphics[width=0.9\linewidth]{adambe/eg_intersection_adjlist}
 		\label{fig:adambe_intersection_adjlist}
 	}
-	\vspace{-0.05in}
+	% \vspace{-0.05in}
   \\
 	\subfloat[位图]{
-		\includegraphics[width=0.76\linewidth]{adambe/eg_intersection_bitset}
+		\includegraphics[width=0.9\linewidth]{adambe/eg_intersection_bitset}
 		\label{fig:adambe_intersection_bitset}
 	}
-	 \vspace{-0.05in}
+
 	\caption{邻接表与位图的集合交集运算比较实例$N(v_0)\cap N(v_1)$}
 	
 	\label{fig:adambe_intersection}
@@ -154,7 +154,7 @@
 
 \end{example}
 
-幸运的是，考虑到计算子图动态变化的特性，以及大多数计算子图规模较小的情况（如图~\ref{fig:distribution}所示），因此利用位图操作加速小计算子图中的集合运算是一个可行的方案。我们将在~\ref{subsec:ada_design_1}节对此进行详细讨论。
+幸运的是，考虑到计算子图动态变化的特性，以及大多数计算子图规模较小的情况（如图~\ref{fig:distribution}所示），因此利用位图操作加速小型计算子图中的集合运算是一个可行的方案。我们将在~\ref{subsec:ada_design_1}节对此进行详细讨论。
 
 % 图~\ref{fig:ada_motivation_2}展示了图~\ref{fig:ada_eg_tree}所示枚举树中父节点$w$和子节点$x$中涉及的部分集合交集运算。这些计算包括对每个节点的集合$L$以及对每个节点候选集合$C$的计算过程。
 
@@ -191,7 +191,7 @@
 
 \section{AdaMBE算法设计与实现}
 
-为了克服现有方法的不足，本节提出了基于局部计算子图的优化方法和基于位图的动态子图方法，以提升极大二分团枚举算法的效率。其中，基于局部计算子图的优化方法利用计算子图中的局部邻居信息，加速了极大二分团枚举算法的核心操作，同时减少了算法中的无效的顶点访问、集合运算以及枚举节点；而基于位图的动态子图方法利用位图，通过规则高效的位运算加速了小计算子图中的集合运算，在集合运算性能和访存效率之间进行了良好的折中。最终，我们结合这两种技术，形成了高效的自适应极大二分团枚举算法AdaMBE。
+为了克服现有方法的不足，本节提出了基于局部计算子图的优化方法和基于位图的动态子图方法，以提升极大二分团枚举算法的效率。其中，基于局部计算子图的优化方法利用计算子图中的局部邻居信息，加速了极大二分团枚举算法的核心操作，同时减少了算法中的无效的顶点访问、集合运算以及枚举节点；而基于位图的动态子图方法利用位图，通过规则高效的位运算加速了小型计算子图中的集合运算，在集合运算性能和访存效率之间进行了良好的折中。最终，我们结合这两种技术，形成了高效的自适应极大二分团枚举算法AdaMBE。
 
 \subsection{基于局部计算子图的优化方法}
 \label{subsec:ada_design_2}
@@ -199,7 +199,7 @@
 为了减少原图中的无效顶点访问，我们提出了一种基于局部计算子图的优化方法，即LCG（Local Computational subGraph）方法。其核心设计思想是\textbf{动态缓存局部计算子图，并基于该子图重新设计算法的核心操作}，以提升枚举性能。具体而言，我们观察到每个节点需要计算候选顶点的局部邻居作为中间结果。因此，我们可以通过缓存候选顶点的局部邻居这一中间结果，来得到局部计算子图。这里，顶点$v$在节点$x$中的\emph{局部邻居}被定义为$N(v)$和$L_x$的交集，\emph{在本章中被记作$N_x(v)$}。为了提升计算性能，我们利用计算子图中的局部邻居重新设计了~\ref{subsec:baseline}节算法~\ref{alg:se_mbe}中的三个核心操作：
 
 (1) \textit{减少计算$R'$ 和 $C'$时的无效\emph{顶点}访问。} 
-在当前的极大二分团枚举算法中，计算当前节点的集合$R'$ 和 $C'$通常涉及计算每个候选顶点 $v_c$ 在当前节点的局部邻居 $L' \cap N(v_c)$。这一过程对应于算法~\ref{alg:se_mbe} 中的第6和第8行。该过程默认访问顶点$v_c$ 在原图中的邻居$N(v_c)$。然而，根据第\ref{subsec:ada_limitation_vertex}节中的观察 O2，我们采用了一种优化策略：使用顶点 $v_c$ 在当前节点父节点 $x$ 对应计算子图中的局部邻居 $N_x(v_c)$ 替代原图中邻居$N(v_c)$的访问。由于计算子图中的局部邻居 $N_x(v_c)$ 通常规模较小，远远少于原图中的全部邻居 $N(v_c)$，因此计算 $L' \cap N_x(v_c)$ 的开销明显低于计算 $L' \cap N(v_c)$。为了便于获取顶点的局部邻居，我们将每次计算候选顶点$v_c$在当前节点局部邻居$L' \cap N(v_c)$这一中间结果缓存起来，以避免不必要的顶点访问。
+在当前的极大二分团枚举算法中，计算当前节点的集合$R'$ 和 $C'$需要计算每个候选顶点 $v_c$ 在当前节点的局部邻居 $L' \cap N(v_c)$。这一过程对应于算法~\ref{alg:se_mbe} 中的第6和第8行。该过程默认访问顶点$v_c$ 在原图中的邻居$N(v_c)$。然而，根据第\ref{subsec:ada_limitation_vertex}节中的观察 O2，我们采用了一种优化策略：使用顶点 $v_c$ 在当前节点父节点 $x$ 对应计算子图中的局部邻居 $N_x(v_c)$ 替代原图中邻居$N(v_c)$的访问。由于计算子图中的局部邻居 $N_x(v_c)$ 通常规模较小，远远少于原图中的全部邻居 $N(v_c)$，因此计算 $L' \cap N_x(v_c)$ 的开销明显低于计算 $L' \cap N(v_c)$。为了便于获取顶点的局部邻居，我们将每次计算候选顶点$v_c$在当前节点局部邻居$L' \cap N(v_c)$这一中间结果缓存起来，以避免不必要的顶点访问。
 
 局部邻居 $L' \cap N(v_c)$ 的计算是现有极大二分团枚举算法中的必要步骤。通过缓存局部邻居这一中间结果，我们可以得到每个节点对应的计算子图，进而消除计算子图之外的无效顶点访问，提高枚举效率。具体而言，通过缓存局部邻居，我们平均减少了97.1\%的计算子图外的无效顶点访问，如图~\ref{fig:ada_motivation_redundancy}所示。鉴于极大二分团枚举问题是计算密集型任务，内存使用较少，利用一些额外的内存来存储局部邻居以减少运行时间是值得的。
 
@@ -234,11 +234,11 @@
 
 
 
-\begin{figure} [H]
+\begin{figure} [t]
 	\centering
-  % \vspace{0.1in}
+
 	\includegraphics[width=\linewidth]{adambe/eg_design2_new}
-  % \vspace{0.05in}
+
 	\caption{基于局部计算子图的优化方法示例}
 
 	\label{fig:ada_design2}
@@ -285,7 +285,7 @@ LCG方法的主要贡献包括以下两点：
 \subsection{基于位图的动态子图方法}
 \label{subsec:ada_design_1}
 
-为了优化邻接表上高昂的集合运算开销，我们提出了一种基于位图的动态子图方法，即BDS（Bitmap-based Dynamic Subgraph）方法。其核心思想是\emph{利用位图加速小计算子图} \emph{中的集合运算操作}。如~\ref{subsec:ada_representation}节所述，计算子图的存储结构是计算效率和内存效率之间的权衡。因此，BDS方法采用混合图存储结构：对于原图或者大的计算子图，我们用邻接表来表示，以提高内存效率；对于小的计算子图，我们用动态建立的位图来表示，以提高集合运算效率。
+为了优化邻接表上高昂的集合运算开销，我们提出了一种基于位图的动态子图方法，即BDS（Bitmap-based Dynamic Subgraph）方法。其核心思想是\emph{利用位图加速小型计算子图} \emph{中的集合运算操作}。如~\ref{subsec:ada_representation}节所述，计算子图的存储结构是计算效率和内存效率之间的权衡。因此，BDS方法采用混合图存储结构：对于原图或者大的计算子图，我们用邻接表来表示，以提高内存效率；对于小的计算子图，我们用动态建立的位图来表示，以提高集合运算效率。
 
 具体而言，我们观察到枚举过程中计算子图是不断缩小的。根据算法~\ref{alg:se_mbe}所述，新节点$(L',R',C')$中的集合$L'$和$C'$中的全部顶点均源自父节点$(L, R, C)$对应的集合$L$和$C$（第4、8-9行），即$L'\subset L$且$C'\subset C$。由此可知，随着枚举过程的深入，根据节点内集合$L$和$C$产生的计算子图也在不断缩小。因此，我们设计的BDS方法可以在当前节点对应的计算图大小小于给定的阈值时动态建立子位图，并充分发挥位图在高效集合交集运算方面的优势，在以当前节点为根节点的子枚举树中重用该子位图。
 
@@ -305,8 +305,8 @@ BDS方法的实现细节，我们通过回答以下两个关键问题的方式�
 
 \begin{figure} [H]
 	\centering
-  \vspace{0.1in}
-	\includegraphics[width=0.98\linewidth]{adambe/eg_design_1}
+   \vspace{0.2in}
+	\includegraphics[width=\linewidth]{adambe/eg_design_1}
   % \vspace{0.1in}
 	\caption{基于位图的动态子图方法示例}
 
@@ -342,7 +342,7 @@ BDS方法的实现细节，我们通过回答以下两个关键问题的方式�
 \subsection{AdaMBE算法}
 \label{subsec:ada_design_all}
 
-结合LCG方法和BDS方法，我们提出了一种自适应的极大二分团枚举算法，简称为AdaMBE（Adaptive Maximal Biclique Enumeration）。该算法的核心思想是根据极大二分团枚举的不同阶段，分别采用这两种方法：在原图和大计算子图中采用LCG方法，利用动态缓存的计算子图提高计算效率；而在小计算子图中采用BDS方法，通过位图加速其中的集合运算操作。LCG方法和BDS方法能够在不同规模计算子图的场景下实现优势互补。此外，针对一个二分图 $G(U,V,E)$，AdaMBE会根据顶点的邻居大小对集合 $V$ 中的所有顶点进行初始排序。我们将在~\ref{subsec:ada_eval_sensitivity} 节通过实验展示其高效性。
+结合LCG方法和BDS方法，我们提出了一种自适应的极大二分团枚举算法，简称为AdaMBE（Adaptive Maximal Biclique Enumeration）。该算法的核心思想是根据极大二分团枚举的不同阶段，分别采用这两种方法：在原图和大计算子图中采用LCG方法，利用动态缓存的计算子图提高计算效率；而在小型计算子图中采用BDS方法，通过位图加速其中的集合运算操作。LCG方法和BDS方法能够在不同规模计算子图的场景下实现优势互补。此外，针对一个二分图 $G(U,V,E)$，AdaMBE会根据顶点的邻居大小对集合 $V$ 中的所有顶点进行初始排序。我们将在~\ref{subsec:ada_eval_sensitivity} 节通过实验展示其高效性。
 
 \input{text/alg_adambe}
 
@@ -422,7 +422,7 @@ BDS方法的实现细节，我们通过回答以下两个关键问题的方式�
 
 图~\ref{fig:ada_overall_time}展示了在常规数据集上，AdaMBE、ParAdaMBE以及主流极大二分团枚举算法的运行时间对比。实验结果显示，在不同的数据集下，我们的串行算法 AdaMBE 在性能上始终比最接近的串行竞争对手快 1.6 到 49.7 倍，而并行算法 ParAdaMBE 则比 ParMBE 算法快 2.5 到 137.8 倍。特别值得注意的是，在耗时最长的数据集 Github 上，AdaMBE 仅用时 194 秒完成任务，而FMBE、PMBE 和 ooMBEA 算法分别需要 16,616 秒、51,647 秒和 9,639 秒。同样，ParAdaMBE 在 40 秒内完成任务，而 ParMBE 则需要超过 2,412 秒。这清楚地表明，与现有方法相比，AdaMBE 算法和ParAdaMBE算法在处理耗时较长的数据集时具有明显的性能优势，为大规模数据集上的极大二分团枚举任务提供了强大的技术支持。
 
-\begin{figure} [t]
+\begin{figure} [H]
 	\centering
    \vspace{0.05in}
 	\includegraphics[width=\linewidth]{adambe/overall_memory}
@@ -437,10 +437,13 @@ BDS方法的实现细节，我们通过回答以下两个关键问题的方式�
 
 % 实验结果显示，与同类别中的其他算法相比，我们串行和并行算法的内存使用情况类似。同样以数据集Github为例，AdaMBE、FMBE、PMBE、ooMBEA、ParAdaMBE以及ParMBE的内存使用分别为32MB ，18MB，55MB，105MB，271MB 和	431MB。实验结果表明，虽然我们的AdaMBE在枚举过程中需要额外的内存来存储局部邻居，但它的内存使用仍然优于最近的串行算法 PMBE 和 ooMBEA。事实上，PMBE 和 ooMBEA 分别需要比 AdaMBE平均多1.4倍和1.9倍的内存，因为它们需要额外的内存来存储 CDAG 索引结构~\cite{PMBE20} 和多个静态子图~\cite{ooMBE22}。除此之外，尽管FMBE算法的内存使用量低于AdaMBE，但其运行时间却远远落后于AdaMBE。
 
-\begin{figure} [H]
+
+\textbf{大规模数据集的评估：} 为了验证我们提出的算法在大规模二分图中的性能，我们在两个包含超过2亿个极大二分团的大规模数据集上测量了不同算法的运行时间。对于那些运行时间超过时间限制（48小时）的算法，我们报告它们在截止48小时时所产生的极大二分团数量。
+
+\begin{figure} [t]
   \centering
 	% \vspace{0.05in}
-	\vspace{0.1in}
+	% \vspace{0.1in}
   \subfloat[CebWiki数据集上的运行时间评估
 		% Evaluation on CebWiki. We report running time of all competitors excluding GMBE, which runs out of memory (OOM).
 		]{
@@ -458,9 +461,6 @@ BDS方法的实现细节，我们通过回答以下两个关键问题的方式�
   \caption{AdaMBE在超大数据集上的整体评估}
   \label{fig:ada_overall_large}
 \end{figure}
-
-\textbf{大规模数据集的评估：} 为了验证我们提出的算法在大规模二分图中的性能，我们在两个包含超过2亿个极大二分团的大规模数据集上测量了不同算法的运行时间。对于那些运行时间超过时间限制（48小时）的算法，我们报告它们在截止48小时时所产生的极大二分团数量。
-
 
 
 图~\ref{fig:ada_overall_cebwiki} 展示了不同算法在 CebWiki 数据集上的运行情况。实验结果显示，AdaMBE 和 ParAdaMBE 的完成时间均小于10分钟，而其他现有算法的完成时间均超过1小时，最新的极大二分团枚举算法 ooMBEA 的运行时间甚至接近10小时。图~\ref{fig:ada_overall_tvtropes} 展示了不同算法在 TVTropes 数据集上的运行情况。实验结果显示，只有 AdaMBE 和 ParAdaMBE 在48小时内完成了对全部196亿极大二分团的枚举任务，完成时间分别为44.8小时和6.4小时。而其他比较算法在48小时内所枚举的极大二分团数量均不超过总数量的8.5\%。这清楚地表明，由于性能限制，现有方法难以在大规模数据集上得到有效应用。相比之下，AdaMBE 算法通过优化数据结构，充分利用计算子图动态变化的特性，在大规模二分图场景中表现出更为明显的优势。
@@ -495,7 +495,7 @@ BDS方法的实现细节，我们通过回答以下两个关键问题的方式�
 \begin{figure} [H]
 	\centering
   % \vspace{0.05in}
-	\includegraphics[width=0.8\linewidth]{adambe/breakdown_time}
+	\includegraphics[width=0.75\linewidth]{adambe/breakdown_time}
 	\caption{BDS、LCG方法的运行时间分解评估（对数形式）}
 
 	\label{fig:ada_breakdown_time}
@@ -504,7 +504,7 @@ BDS方法的实现细节，我们通过回答以下两个关键问题的方式�
 \begin{figure} [H]
 	\centering
   % \vspace{0.05in}
-	\includegraphics[width=0.8\linewidth]{adambe/breakdown_memory}
+	\includegraphics[width=0.75\linewidth]{adambe/breakdown_memory}
 	% \vspace{-0.1in}
 	\caption{BDS、LCG方法的内存使用分解评估（对数形式）}
 
@@ -519,10 +519,10 @@ BDS方法的实现细节，我们通过回答以下两个关键问题的方式�
 \begin{figure} [t]
 	\centering
   % \vspace{0.05in}
-	\includegraphics[width=0.8\linewidth]{adambe/breakdown_design2}
+	\includegraphics[width=0.75\linewidth]{adambe/breakdown_design2}
   %  \vspace{-0.1in}
 	\caption{LCG方法的节点剪枝效率}
-
+	\vspace{-0.1in}
 	\label{fig:ada_breakdown_design2}
 \end{figure}
 
@@ -542,11 +542,11 @@ BDS方法的实现细节，我们通过回答以下两个关键问题的方式�
 \begin{figure} [t]
 	\centering
   % \vspace{0.05in}
-	\includegraphics[width=0.8\linewidth]{adambe/breakdown_design1}
+	\includegraphics[width=0.75\linewidth]{adambe/breakdown_design1}
   % \vspace{0.05in}
-	% \vspace{-0.1in}
+	 
 	\caption{BDS方法下的运行时间分解}
-
+	\vspace{-0.1in}
 	\label{fig:ada_breakdown_design1}
 \end{figure}
 
@@ -563,21 +563,22 @@ BDS方法的实现细节，我们通过回答以下两个关键问题的方式�
 我们对BDS方法中的阈值$\tau$选择、顶点的顺序选择以及算法的可扩展性进行了敏感性测试。
 
 \begin{figure} [H]
+	\vspace{-0.1in}
 	\centering
-  \includegraphics[width=0.2\linewidth]{adambe/sensitivity_threshold_legend} \\
+  \includegraphics[width=0.18\linewidth]{adambe/sensitivity_threshold_legend} \\
 	
   \subfloat[IMDB.]{
-		\includegraphics[width=0.7\linewidth]{adambe/sensitivity_threshold_im}
+		\includegraphics[width=0.65\linewidth]{adambe/sensitivity_threshold_im}
 		\label{fig:sensitivity_threshold_im}
 	}
 	\\
 	\subfloat[BookCrossing.]{
-		\includegraphics[width=0.7\linewidth]{adambe/sensitivity_threshold_bx}
+		\includegraphics[width=0.65\linewidth]{adambe/sensitivity_threshold_bx}
 		\label{fig:sensitivity_threshold_bx}
 	}
 	\\
   \subfloat[Github.]{
-		\includegraphics[width=0.7\linewidth]{adambe/sensitivity_threshold_gh}
+		\includegraphics[width=0.65\linewidth]{adambe/sensitivity_threshold_gh}
 		\label{fig:sensitivity_threshold_gh}
 	}
 
@@ -595,19 +596,19 @@ BDS方法的实现细节，我们通过回答以下两个关键问题的方式�
 
 \begin{figure} [H]
 	\centering
-	
-  \includegraphics[width=0.8\linewidth]{adambe/order_legend}
+	\vspace{0.1in}
+  \includegraphics[width=0.9\linewidth]{adambe/order_legend}
   
 
   % \subfigure[Medium datasets.]{
-		\includegraphics[width=0.42\linewidth]{adambe/order_medium}
+		\includegraphics[width=0.47\linewidth]{adambe/order_medium}
 	% }
   \quad
   % \subfigure[Large datasets.]{
-		\includegraphics[width=0.42\linewidth]{adambe/order_large}
+		\includegraphics[width=0.47\linewidth]{adambe/order_large}
 	% }
 
-	\vspace{-0.1in}
+	% \vspace{-0.1in}
 	\caption{顶点顺序的性能评估}
 	\label{fig:ada_order}
 

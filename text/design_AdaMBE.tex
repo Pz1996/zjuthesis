@@ -1,8 +1,10 @@
 \chapter{自适应的极大二分团枚举数据结构}
 \label{ch:adapt_mbe}
 
-针对极大二分团枚举问题中静态数据结构效率低下的问题，本章整理了相关工作中不同的图存储数据结构，详细描述不同数据结构的优劣以及适用场景，并指出静态数据结构所导致的局限性，作为本章的研究出发点。
-具体而言，现有算法通常使用静态图结构完成枚举，但忽略了枚举过程中子图动态变化的特性，导致在原图中进行大量无效内存访问；同时，现有算法采用邻接表存储二分图，导致高昂的集合运算开销。在这些因素的限制下，现有算法仅能处理包含不超过1亿极大二分团的小数据集。为了解决这些问题，本章提出以下优化方法：首先，本章提出了基于局部计算子图的优化方法，通过动态缓存枚举过程中的计算子图，优化算法的枚举过程，从而减少无效的顶点访问、集合运算和枚举节点。然后，本章提出了基于位图的动态子图方法，利用位图加速了小计算子图中的集合运算。最后，本章结合上述两个技术点，形成自适应的极大二分团枚举算法AdaMBE。实验证明，AdaMBE算法相比于现有工作的运行时间缩短1.6-49.7倍，并成功应用于超过190亿极大二分团的TVTropes数据集。
+针对极大二分团枚举问题计算不规则、静态数据结构效率低下的问题，本章整理了相关工作中不同的图存储数据结构，详细描述不同数据结构的优劣以及适用场景，并指出静态数据结构所导致的局限性，作为本章的研究动机。
+具体而言，现有算法通常使用静态图结构完成枚举，但忽略了枚举过程中子图动态变化的特性，导致在原图中进行大量无效内存访问；同时，现有算法采用邻接表存储二分图，导致高昂的集合运算开销。在这些因素的限制下，现有算法仅能处理包含不超过1亿极大二分团的小数据集。为了解决这些问题，本章提出以下优化方法：首先，本章提出了基于局部计算子图的优化方法，通过动态缓存枚举过程中的计算子图，优化算法的枚举过程，从而减少无效的顶点访问、集合运算和枚举节点。然后，本章提出了基于位图的动态子图方法，利用位图，通过规则高效的位运算加速了小计算子图中的集合运算。最后，本章结合上述两个技术点，形成自适应的极大二分团枚举算法AdaMBE。实验证明，AdaMBE算法比现有工作的运行时间缩短1.6-49.7倍，并成功应用于超过190亿极大二分团的TVTropes数据集。
+
+
 
 % 具体而言，现有算法通常采用邻接表结构存储二分图，在进行大量集合交集运算时会带来较高的计算开销；同时，过多地访问顶点的全部邻居也存在冗余计算问题。这些因素限制了算法只能应用于包含不超过1亿极大二分团的小数据集。为了解决这些问题，本章提出以下优化方法：首先，针对邻接表上集合运算的高开销问题，本章提出基于位图的动态子图方法。该方法在计算过程中动态生成子位图，通过在子位图中进行集合运算，提升集合运算的效率。然后，针对访问顶点完整邻居导致的冗余计算问题，本章提出基于局部计算子图的优化方法。该方法通过动态保存顶点的部分活跃邻居，避免大量对结果无影响的不活跃邻居的访问，从而减少冗余计算。此类冗余计算包括对含有非极大二分团的节点的计算、重复的集合运算以及无效顶点的访问。最后，本章结合基于位图的动态子图方法和基于局部计算子图的优化方法，形成自适应的极大二分团枚举算法AdaMBE。实验证明，AdaMBE算法相比于现有工作的运行时间缩短1.6-49.7倍，并成功应用于超过190亿极大二分团的TVTropes数据集。
 
@@ -39,7 +41,7 @@
 
 
 % 在图的表示中，哈希表通常用于某些特定的图算法。哈希表表示法通过高效的查找操作加速集合交集操作，尤其是在输入集大小差异显著时。虽然哈希表与邻接表具有类似的时间和空间复杂度，但可能涉及大量的随机内存访问和更高的内存使用。这可能导致性能相对较低，与邻接表相比效率不够理想。然而，在某些需要快速查找和动态更新的图算法中，哈希表表示法可能是更好的选择。哈希表表示法还可以处理图中的边属性信息，使得它在某些情况下更加灵活和实用。哈希表表示法仅在 ParMBE~\cite{parMBE19} 中使用。
-\section{研究出发点}
+\section{研究动机}
 
 尽管现有研究已经提出了许多优化方法来提高枚举效率，但现有的极大二分团枚举算法通常在单一的静态图结构下完成枚举，忽略了枚举过程中计算子图动态变化的特性，导致算法的性能受到静态数据结构的限制。本节将现有算法的数据结构限制归纳为两个方面：在原图中的大量无效内存访问和在邻接表上高昂的集合运算开销，并结合例子进行说明。为了方便表述，本章中默认以算法~\ref{alg:se_mbe} 在二分图$G_2$上的集合枚举树为例，如图~\ref{fig:ada_tree}所示。
 
@@ -128,15 +130,16 @@
 	\centering
 	% \vspace{0.1in}
 	\subfloat[邻接表]{
-		\includegraphics[width=0.7\linewidth]{adambe/eg_intersection_adjlist}
+		\includegraphics[width=0.76\linewidth]{adambe/eg_intersection_adjlist}
 		\label{fig:adambe_intersection_adjlist}
 	}
+	\vspace{-0.05in}
   \\
 	\subfloat[位图]{
-		\includegraphics[width=0.7\linewidth]{adambe/eg_intersection_bitset}
+		\includegraphics[width=0.76\linewidth]{adambe/eg_intersection_bitset}
 		\label{fig:adambe_intersection_bitset}
 	}
-	% \vspace{0.1in}
+	 \vspace{-0.05in}
 	\caption{邻接表与位图的集合交集运算比较实例$N(v_0)\cap N(v_1)$}
 	
 	\label{fig:adambe_intersection}
@@ -188,7 +191,7 @@
 
 \section{AdaMBE算法设计与实现}
 
-为了克服现有方法的不足，本节提出了基于局部计算子图的优化方法和基于位图的动态子图方法，以提升极大二分团枚举算法的效率。其中，基于局部计算子图的优化方法利用计算子图中的局部邻居信息，加速了极大二分团枚举算法的核心操作，同时减少了算法中的无效的顶点访问、集合运算以及枚举节点；而基于位图的动态子图方法利用位图加速了小计算子图中的集合运算，在集合运算性能和访存效率之间进行了良好的折中。最终，我们结合这两种技术，形成了高效的自适应极大二分团枚举算法AdaMBE。
+为了克服现有方法的不足，本节提出了基于局部计算子图的优化方法和基于位图的动态子图方法，以提升极大二分团枚举算法的效率。其中，基于局部计算子图的优化方法利用计算子图中的局部邻居信息，加速了极大二分团枚举算法的核心操作，同时减少了算法中的无效的顶点访问、集合运算以及枚举节点；而基于位图的动态子图方法利用位图，通过规则高效的位运算加速了小计算子图中的集合运算，在集合运算性能和访存效率之间进行了良好的折中。最终，我们结合这两种技术，形成了高效的自适应极大二分团枚举算法AdaMBE。
 
 \subsection{基于局部计算子图的优化方法}
 \label{subsec:ada_design_2}
@@ -233,7 +236,7 @@
 
 \begin{figure} [H]
 	\centering
-  \vspace{0.1in}
+  % \vspace{0.1in}
 	\includegraphics[width=\linewidth]{adambe/eg_design2_new}
   % \vspace{0.05in}
 	\caption{基于局部计算子图的优化方法示例}
@@ -428,23 +431,27 @@ BDS方法的实现细节，我们通过回答以下两个关键问题的方式�
 	\label{fig:ada_overall_memory}
 \end{figure}
 
-图~\ref{fig:ada_overall_time}展示了在常规数据集上，AdaMBE、ParAdaMBE以及主流极大二分团枚举算法的内存使用对比。实验结果显示，与同类别中的其他算法相比，我们串行和并行算法的内存使用情况类似。同样以数据集Github为例，AdaMBE、FMBE、PMBE、ooMBEA、ParAdaMBE以及ParMBE的内存使用分别为32MB ，18MB，55MB，105MB，271MB 和	431MB。实验结果表明，虽然我们的AdaMBE在枚举过程中需要额外的内存来存储局部邻居，但它的内存使用仍然优于最近的串行算法 PMBE 和 ooMBEA。事实上，PMBE 和 ooMBEA 分别需要比 AdaMBE平均多1.4倍和1.9倍的内存，因为它们需要额外的内存来存储 CDAG 索引结构~\cite{PMBE20} 和多个静态子图~\cite{ooMBE22}。除此之外，尽管FMBE算法的内存使用量低于AdaMBE，但其运行时间却远远落后于AdaMBE。
+图~\ref{fig:ada_overall_memory}展示了在常规数据集上，AdaMBE、ParAdaMBE以及主流极大二分团枚举算法的内存使用对比。实验结果显示，与串行算法PMBE和ooMBEA相比，AdaMBE的内存使用平均分别降低了28.0\%和29.8\%。以数据集Github为例，AdaMBE的内存使用是32MB，而PMBE和ooMBEA的内存使用分别是271MB和431MB。这是因为它们需要额外的内存来存储 CDAG 索引结构~\cite{PMBE20} 和多个静态子图~\cite{ooMBE22}。与并行算法ParMBE相比，ParAdaMBE的内存消耗平均降低了29.7\%。除此之外，尽管FMBE算法的内存使用量低于AdaMBE，但其运行时间却远远落后于AdaMBE。因此，我们可以得出结论，我们的方法在保持高内存效率的同时取得了显著的性能改进。
+
+% 图8(b)显示，与串行算法如PMBE和OOMBEA相比，AdaMBE的内存使用率平均降低了28.0%和29.8%。与并行算法ParMBE和GMBE相比，ParAdaMBE的内存消耗平均分别降低了29.7%和96.4%。由于在GPU上为成千上万的线程预分配内存，GMBE需要最大的内存 [21]。虽然在内存使用方面FMBE略优于AdaMBE，但其运行时间明显落后于AdaMBE。因此，我们可以得出结论，我们的方法在保持高内存效率的同时取得了显著的性能改进。
+
+% 实验结果显示，与同类别中的其他算法相比，我们串行和并行算法的内存使用情况类似。同样以数据集Github为例，AdaMBE、FMBE、PMBE、ooMBEA、ParAdaMBE以及ParMBE的内存使用分别为32MB ，18MB，55MB，105MB，271MB 和	431MB。实验结果表明，虽然我们的AdaMBE在枚举过程中需要额外的内存来存储局部邻居，但它的内存使用仍然优于最近的串行算法 PMBE 和 ooMBEA。事实上，PMBE 和 ooMBEA 分别需要比 AdaMBE平均多1.4倍和1.9倍的内存，因为它们需要额外的内存来存储 CDAG 索引结构~\cite{PMBE20} 和多个静态子图~\cite{ooMBE22}。除此之外，尽管FMBE算法的内存使用量低于AdaMBE，但其运行时间却远远落后于AdaMBE。
 
 \begin{figure} [H]
   \centering
-	\vspace{0.05in}
-	% \vspace{0.1in}
+	% \vspace{0.05in}
+	\vspace{0.1in}
   \subfloat[CebWiki数据集上的运行时间评估
 		% Evaluation on CebWiki. We report running time of all competitors excluding GMBE, which runs out of memory (OOM).
 		]{
-		\includegraphics[width=0.8\linewidth]{adambe/cebwiki}
+		\includegraphics[width=0.75\linewidth]{adambe/cebwiki}
 		\label{fig:ada_overall_cebwiki}
 	}
 	\\
   \subfloat[TVTropes数据集上48小时内算法输出的极大二分团数量
 		% Evaluation on TVTropes. As only AdaMBE and \parpname{} complete within 48 hours, we report the maximal biclique count of competitors at 48 hours.
 		]{
-		\includegraphics[width=0.8\linewidth]{adambe/tvtropes}
+		\includegraphics[width=0.75\linewidth]{adambe/tvtropes}
 		\label{fig:ada_overall_tvtropes}
 	}
 

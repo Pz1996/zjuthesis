@@ -48,7 +48,7 @@ GPU，即图形处理单元（Graphics Processing Unit），最初是专门用�
 \end{enumerate}
 
 
-\section{研究出发点}
+\section{研究动机}
 
 尽管GPU具有强大的并行能力，在部分图挖掘问题上已经显示出加速效果，但在GPU上实现高效的极大二分团枚举仍然面临严峻的挑战。具体而言，这些挑战主要包括的内存短缺、线程分歧和负载不均等。本节将结合GPU加速图计算的相关工作，对上述挑战进行详细说明。为了方便表述，本章中总是以算法~\ref{alg:se_mbe} 在二分图$G_3$上的集合枚举树为例，如图~\ref{fig:gmbe_tree}所示。
 
@@ -344,7 +344,7 @@ $\Delta(V)$， 和 $\Delta_2(V)$。由于二分图中$U$和$V$是对称的，在
 \begin{figure} [H]
 	\centering
   \vspace{0.05in}
-	\includegraphics[width=0.8\linewidth]{gmbe/memory.pdf}	
+	\includegraphics[width=0.75\linewidth]{gmbe/memory.pdf}	
 	\vspace{0.05in}
   \caption{枚举节点重用方法的分解评估（对数形式）}
 	\label{fig:gmbe_exp_memory}
@@ -360,7 +360,7 @@ $\Delta(V)$， 和 $\Delta_2(V)$。由于二分图中$U$和$V$是对称的，在
 \begin{figure}[t]
 	\centering
   \vspace{0.15in}
-	\includegraphics[width=0.8\linewidth]{gmbe/optimization.pdf}	
+	\includegraphics[width=0.75\linewidth]{gmbe/optimization.pdf}	
 	% \vspace{0.05in}
   \caption{剪枝方法和任务调度方法的分解评估（对数形式）}
 	\label{fig:gmbe_exp_optimization}

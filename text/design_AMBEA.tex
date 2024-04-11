@@ -1,7 +1,7 @@
 \chapter{激进的极大二分团枚举剪枝方法}
 \label{ch:aggressive_mbe}
 
-针对极大二分团枚举搜索空间大的问题，本章整理了相关工作中的优化方法，并指出其中的共性问题作为本章的研究出发点。具体而言，我们发现通用的集合枚举树存在结构限制，只允许使用部分顶点生成新的枚举节点；同时，已有的剪枝方法仅在当前节点通过节点检查后被动执行，剪枝效率受限。为解决这些问题，本章提出了以下优化方法：首先，针对集合枚举树的结构限制，本章提出了激进的集合枚举树。该枚举树激进地将枚举树中每个节点对应的二分团扩展为极大二分团，并利用父子节点间的联系消除枚举树中的重复二分团，从而低成本裁剪无效节点且保持树结构平衡。然后，针对现有方法被动触发的特点，本章提出了激进的顶点合并剪枝方法。该方法主动地合并具有相同局部邻居的顶点，进一步提升了剪枝效率。最后，本章结合激进的集合枚举树和激进的顶点合并剪枝方法，形成了高效的极大二分团枚举算法AMBEA。实验证明，AMBEA算法相比现有最优算法压缩了2.37-8.98倍的搜索空间，运行时间缩短了1.15-5.32倍。
+针对极大二分团枚举问题搜索空间大、现有剪枝方法效率低下的问题，本章整理了相关工作中的优化方法，并指出其中的共性问题作为本章的研究动机。具体而言，我们发现通用的集合枚举树存在结构限制，只允许使用部分顶点生成新的枚举节点；同时，已有的剪枝方法仅在当前节点通过节点检查后被动执行，剪枝效率受限。为解决这些问题，本章提出了以下优化方法：首先，针对集合枚举树的结构限制，本章提出了激进的集合枚举树。该枚举树激进地将枚举树中每个节点对应的二分团扩展为极大二分团，并利用父子节点间的联系消除枚举树中的重复二分团，从而低成本裁剪无效节点且保持树结构平衡。然后，针对现有方法被动触发的特点，本章提出了激进的顶点合并剪枝方法。该方法主动地合并具有相同局部邻居的顶点，进一步提升了剪枝效率。最后，本章结合激进的集合枚举树和激进的顶点合并剪枝方法，形成了高效的极大二分团枚举算法AMBEA。实验证明，AMBEA算法相比现有最优算法压缩了2.37-8.98倍的搜索空间，运行时间缩短了1.15-5.32倍。
 
 \section{现有搜索空间优化方法分析}
 \label{sec:opt}
@@ -46,9 +46,9 @@
 
 \begin{figure} [H]
   \center
-    \vspace{0.1in}
-		\includegraphics[width=0.9\linewidth]{order_inc}
-    \vspace{0.05in}
+    % \vspace{0.1in}
+		\includegraphics[width=0.8\linewidth]{order_inc}
+    % \vspace{0.05in}
 	\caption{根据顶点的邻居数量递增排序}
 	\label{fig:order_inc}
 \end{figure}
@@ -110,7 +110,7 @@
 % \end{table}
 
 
-\section{研究出发点}
+\section{研究动机}
 \label{sec:ambea_motivation}
 
 尽管已经有许多方法来优化极大二分团枚举问题的搜索空间，但现有算法所产生的搜索空间仍然非常庞大。具体而言，在枚举过程中，现有方法仍会生成大量的非极大二分团，并对相应节点进行节点检查，导致高昂的计算开销。本节将现有方法的不足归纳为集合枚举树的结构限制以及被动的剪枝方法，并结合例子进行说明。
@@ -134,7 +134,7 @@
 \end{figure}
 
 \begin{example}
-  图~\ref{fig:ambea_motivation}是图~\ref{fig:se_mbea}的子图，展示了在二分图$G_1$上，以节点$m$为根节点的部分集合枚举树，用于说明本章研究出发点。为便于观察，我们在图$G_1$中标记了节点$m$中的顶点，并标记了集合$L_m$和集合$C_m$之间的边，以及集合$L_m$和顶点$v_2$之间的边。
+  图~\ref{fig:ambea_motivation}是图~\ref{fig:se_mbea}的子图，展示了在二分图$G_1$上，以节点$m$为根节点的部分集合枚举树，用于说明本章研究动机。为便于观察，我们在图$G_1$中标记了节点$m$中的顶点，并标记了集合$L_m$和集合$C_m$之间的边，以及集合$L_m$和顶点$v_2$之间的边。
 
   在所示的部分集合枚举树中，我们观察到节点$x_1$和节点$x_2$的集合$L$都只包含顶点$u_5$，而且顶点$v_2$与顶点$u_5$相连。根据深度优先的搜索规则，顶点$v_2$在节点$x_1$和节点$x_2$生成之前已被访问。由于集合枚举树的结构限制，节点$x_1$和节点$x_2$不允许使用已访问的顶点$v_2$来扩展它们的集合$R$，从而导致非极大二分团的产生。
   同时，我们观察到在节点$m$中，候选顶点$v_5$和$v_6$在$L_m$中的邻居同是$u_5$，这意味着可以通过顶点合并对由顶点$v_6$生成的节点$x_2$进行剪枝。然而，由于顶点$v_5$生成的节点$x_1$产生了非极大二分团，被动的顶点合并剪枝方法没有被触发，因此该方法的性能没有充分发挥。
@@ -294,7 +294,7 @@
 \begin{figure} [ht]
   \vspace{0.1 in}
   \centering
-  \includegraphics[width=0.9\linewidth]{eg_ase}
+  \includegraphics[width=0.98\linewidth]{eg_ase}
   % \vspace{0.1 in}
   \caption{算法~\ref{alg:ase}二分图$G_1$上的集合枚举树}
   \label{fig:ase}
@@ -374,10 +374,11 @@ ASE树的主要贡献包括以下两点：
 	 \quad
 	\subfloat[AMP方法]{
 			\label{subfig:amp}
-			\includegraphics[width = 0.55\linewidth]{eg_amp}
+			\includegraphics[width = 0.52\linewidth]{eg_amp}
 	}
 
 	\caption{图~\ref{fig:ase}中节点$m$的生成过程对比}
+  \vspace{-0.05in}
 	\label{fig:amp}
 
 \end{figure}
@@ -393,11 +394,13 @@ ASE树的主要贡献包括以下两点：
 \label{example:amp}
 \end{example}
 
+\vspace{-0.2in}
+
 \begin{figure} 
 	\centering
 	
-  \includegraphics[width=0.75\linewidth]{eg_amp_detail}
-
+  \includegraphics[width=0.85\linewidth]{eg_amp_detail}
+  % \vspace{-0.05in}
 	\caption{AMP方法执行组划分的详细过程}
 	\label{fig:amp_detail}
 
@@ -405,7 +408,6 @@ ASE树的主要贡献包括以下两点：
 
 \begin{example}
   接着例~\ref{example:amp}，图~\ref{fig:amp_detail}详细展示了AMP方法在图~\ref{subfig:amp}的步骤\Num1中进行组划分的过程。其他步骤依此类推。
-
   首先，我们为候选顶点集$C$中每个顶点绑定一个组索引，每个索引指向一个记录组信息的结构。组信息结构包含三个属性：外来顶点、下一个组和局部邻居数量。外来顶点和下一个组属性被用来将输入顶点分配到正确的组，局部邻居数量则记录组内所有顶点的实时局部邻居数量。具体过程如下：
   （\Num1） 在初始化时，$C$中每个顶点的组索引都被设置为0，组0中的外来顶点和下一个组都为空，局部邻居数量设置为0。
   （\Num2） 当输入$u_1$的邻居$v_1$时，我们根据$v_1$的组索引找到组0。由于组0的外来顶点不是$u_1$，我们创建了一个新的组1。组1中的外来顶点和下一个组被设置为空，而且局部邻居数量比组0多1个，因为组1中的顶点相比组0中的顶点多了$u_1$。随后，我们设置组0的外来顶点为$u_1$	​这个邻居。然后，我们将组0的外来顶点设为设置$u_1$，下一个组设为1，并将$v_1$的组索引更新为1。
@@ -526,9 +528,10 @@ AMP方法的贡献主要包括以下两点：
 \begin{figure} [H]
 	\centering
 	
-  \includegraphics[width=0.9\linewidth]{eg_ambea}
-
+  \includegraphics[width=0.98\linewidth]{eg_ambea}
+  
 	\caption{AMBEA在二分图$G_1$上的集合枚举树}
+  \vspace{-0.1in}
 	\label{fig:ambea}
 \end{figure}
 
@@ -605,7 +608,7 @@ AMP方法的贡献主要包括以下两点：
 
 
 
-图~\ref{fig:ambea_overall_prune}展示了在真实数据集上，AMBEA与主流的极大二分团枚举算法的剪枝效率对比。实验结果验证了本章的研究出发点，即现有算法在枚举过程中所产生的搜索空间中仍然包含大量的无效二分团，并对相应节点进行节点检查，导致高昂的计算开销，正如~\ref{sec:ambea_motivation}节所讨论的。以Github数据集为例，MBEA、iMBEA、FMBE、PMBE和ooMBEA在枚举过程中分别会产生比极大二分团数量多2779.2倍、14.5倍、14.9倍、70.8倍和25.7倍的无效二分团。相应地，这些算法会通过大量高开销的节点检查过程来消除这些无效二分团，从而带来巨大的性能开销。与其他算法相比，在Github数据集上，本文提出的AMBEA算法生成的无效二分团数量仅为极大二分团数量的3.5倍，有效地压缩了搜索空间。在不同数据集上，AMBEA算法的比值$\delta/\alpha$比其他最接近的算法减少2.37-8.98倍，这意味着现有剪枝性能最优的算法产生的无效二分团数量是AMBEA中无效二分团数量的2.37-8.98倍。由此可见，AMBEA算法中高效的剪枝方法是其比其他算法更快的关键原因。
+图~\ref{fig:ambea_overall_prune}展示了在真实数据集上，AMBEA与主流的极大二分团枚举算法的剪枝效率对比。实验结果验证了本章的研究动机，即现有算法在枚举过程中所产生的搜索空间中仍然包含大量的无效二分团，并对相应节点进行节点检查，导致高昂的计算开销，正如~\ref{sec:ambea_motivation}节所讨论的。以Github数据集为例，MBEA、iMBEA、FMBE、PMBE和ooMBEA在枚举过程中分别会产生比极大二分团数量多2779.2倍、14.5倍、14.9倍、70.8倍和25.7倍的无效二分团。相应地，这些算法会通过大量高开销的节点检查过程来消除这些无效二分团，从而带来巨大的性能开销。与其他算法相比，在Github数据集上，本文提出的AMBEA算法生成的无效二分团数量仅为极大二分团数量的3.5倍，有效地压缩了搜索空间。在不同数据集上，AMBEA算法的比值$\delta/\alpha$比其他最接近的算法减少2.37-8.98倍，这意味着现有剪枝性能最优的算法产生的无效二分团数量是AMBEA中无效二分团数量的2.37-8.98倍。由此可见，AMBEA算法中高效的剪枝方法是其比其他算法更快的关键原因。
 
 
 
@@ -623,13 +626,13 @@ AMP方法的贡献主要包括以下两点：
 	\centering
   % \vspace{0.05in}
 	\subfloat[运行时间评估 （对数形式）]{
-		\includegraphics[width=0.8\linewidth]{ambea/time_opt}
+		\includegraphics[width=0.7\linewidth]{ambea/time_opt}
 		\label{fig:ambea_opt_time}
 	}
   \vspace{0.05in}
   \\
 	\subfloat[剪枝效率评估 （对数形式）]{
-		\includegraphics[width=0.8\linewidth]{ambea/prune_opt}
+		\includegraphics[width=0.7\linewidth]{ambea/prune_opt}
 		\label{fig:ambea_opt_prune}
 	}
   \vspace{0.05in}
@@ -659,7 +662,7 @@ AMP方法的贡献主要包括以下两点：
 \begin{figure} [H]
 	\centering
 
-		\includegraphics[width=0.8\linewidth]{ambea/order}
+		\includegraphics[width=0.7\linewidth]{ambea/order}
 
 
 	\caption{顶点排序方法的分解评估（对数形式）}
@@ -674,9 +677,9 @@ AMP方法的贡献主要包括以下两点：
 
 我们对ASE树的平衡性、AMBEA算法的扩展性和并行性进行了敏感性测试。
 
-\begin{figure} [H]
+\begin{figure} [t]
 	\centering
-	\includegraphics[width=0.8\linewidth]{ambea/balance}
+	\includegraphics[width=0.7\linewidth]{ambea/balance}
 	\caption{枚举树平衡性敏感性分析}
 	\label{fig:ambea_exp_balance}
 \end{figure}
@@ -685,7 +688,7 @@ AMP方法的贡献主要包括以下两点：
 
 \begin{figure} [H]
 	\centering
-	\includegraphics[width=0.75\linewidth]{ambea/scalability}
+	\includegraphics[width=0.7\linewidth]{ambea/scalability}
 	\caption{算法扩展性敏感性分析 （对数形式）}
 	\label{fig:ambea_exp_scalability}
 \end{figure}
@@ -696,22 +699,22 @@ AMP方法的贡献主要包括以下两点：
 \begin{figure} [H]
 	\centering
 	\subfloat[StackOverflow]{
-		\includegraphics[width=0.42\linewidth]{ambea/parallel_so}
+		\includegraphics[width=0.4\linewidth]{ambea/parallel_so}
 		\label{fig:ambea_paral_so}
 	}
   \quad
 	\subfloat[IMDB]{
-		\includegraphics[width=0.42\linewidth]{ambea/parallel_im}
+		\includegraphics[width=0.4\linewidth]{ambea/parallel_im}
 		\label{fig:ambea_paral_im}
 	}
   \\
 	\subfloat[BookCrossing]{
-		\includegraphics[width=0.42\linewidth]{ambea/parallel_bx}
+		\includegraphics[width=0.4\linewidth]{ambea/parallel_bx}
 		\label{fig:ambea_paral_bx}
 	}
   \quad
 	\subfloat[Github]{
-		\includegraphics[width=0.42\linewidth]{ambea/parallel_gh}
+		\includegraphics[width=0.4\linewidth]{ambea/parallel_gh}
 		\label{fig:ambea_paral_gh}
 	}
   

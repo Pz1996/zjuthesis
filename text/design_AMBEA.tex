@@ -723,7 +723,7 @@ AMP方法的贡献主要包括以下两点：
 	\label{fig:ambea_paral}
 \end{figure}
 
-\textbf{并行性评估：}为了探索AMBEA的并行性，我们将其并行版本ParAMBEA与最先进的并行算法ParMBE进行比较。我们在四个运行时间最长的数据集上进行了实验：StackOverflow、IMDB、BookCrossing和Github。我们分别使用4、8、16、32、64、96个线程在不同数据集上分别运行ParAMBEA和ParMBE算法。由于实验服务器中共包含96个计算核，我们将线程数量上限设置为 96。如图~\ref{fig:ambea_paral}所示，ParAMBEA 相较于 ParMBE 具有明显的性能优势，运行时间缩短了 17.4-293.8 倍。同时，从图表中我们可以观察到，随着线程数量的增加，ParAMBEA 的运行时间几乎呈线性下降趋势，这意味着它可以有效地利用更多的计算资源来加速算法的执行。值得注意的是，通过并行化，我们成功将 BookCrossing 数据集上 AMBEA 算法的运行时间从 1,610 秒大幅缩短至仅需 51 秒。这个结果充分证明了ParAMBEA 在并行性能方面的优越性，并显示出其在大规模数据集上的应用潜力。
+\textbf{并行性评估：}为了探索AMBEA的并行性，我们将其并行版本ParAMBEA与最先进的并行算法ParMBE进行比较。我们在四个运行时间最长的数据集上进行了实验：StackOverflow、IMDB、BookCrossing和Github。我们分别使用4、8、16、32、64、96个线程在不同数据集上分别运行ParAMBEA和ParMBE算法。由于实验服务器中共包含96个计算核，我们将线程数量上限设置为 96。如图~\ref{fig:ambea_paral}所示，ParAMBEA 相较于 ParMBE 具有明显的性能优势，运行时间缩短了 17.4-293.8 倍。同时，从图表中我们可以观察到，随着线程数量的增加，ParAMBEA 的运行时间几乎呈线性下降趋势，这意味着它可以有效地利用更多的计算资源来加速算法的执行。值得注意的是，通过并行化，我们将 BookCrossing 数据集上 AMBEA 算法的运行时间从 1,610 秒大幅缩短至仅需 51 秒。这个结果充分证明了ParAMBEA 在并行性能方面的优越性，并显示出其在大规模数据集上的应用潜力。
 
 \section{本章小结}
 

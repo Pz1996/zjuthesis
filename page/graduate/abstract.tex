@@ -5,11 +5,11 @@
 
 （1）针对剪枝能力受限的问题，提出激进的极大二分团枚举算法AMBEA。该算法包括激进的集合枚举树和激进的顶点合并剪枝方法两个核心技术点。目前主流的枚举方法基于集合枚举树实现，在枚举过程中会产生大量包含非极大二分团的无效枚举节点，从而影响计算性能。激进的集合枚举树激进地将每个枚举节点的二分团扩展为极大二分团，并利用低成本的节点检查方法消除大量无效的枚举节点；激进的顶点合并剪枝方法在枚举节点生成的同时，主动合并具有相同局部邻居的顶点，提升剪枝效率。实验表明，AMBEA对无效节点的剪枝能力提升达到了9.0倍，并实现了高达5.3倍的性能提升。
 
-（2）针对静态数据结构导致的低效性问题，提出自适应的极大二分团枚举算法AdaMBE。该算法包括基于局部计算子图的优化方法和基于位图的动态子图方法两个核心技术点。基于局部计算子图的优化方法通过动态缓存枚举过程中的计算子图，优化算法的枚举过程；基于位图的动态子图方法在枚举过程中动态生成位图，通过位运算加速小型计算子图中的集合运算。实验表明，AdaMBE实现高达49.7倍的性能提升，并成功应用于包含超过190亿个极大二分团的数据集。
+（2）针对静态数据结构导致的低效性问题，提出自适应的极大二分团枚举算法AdaMBE。该算法包括基于局部计算子图的优化方法和基于位图的动态子图方法两个核心技术点。基于局部计算子图的优化方法通过动态缓存枚举过程中的计算子图，优化算法的枚举过程；基于位图的动态子图方法在枚举过程中动态生成位图，通过位运算加速小型计算子图中的集合运算。实验表明，AdaMBE实现高达49.7倍的性能提升，并且能够应用于包含超过190亿个极大二分团的数据集。
 
 （3）针对并行扩展性受限于CPU核心数量的问题，提出基于GPU的极大二分团枚举算法GMBE。该算法包括基于枚举节点重用的迭代方法、局部邻居数量感知的剪枝方法以及负载感知的任务调度方法等三个核心技术点。基于枚举节点重用的迭代方法通过重用根节点的内存，避免为新枚举节点动态分配内存，降低了内存开销；局部邻居数量感知的剪枝方法通过批量比较顶点局部邻居的方式，在剪枝的同时最小化线程分歧问题；负载感知的任务调度方法通过对运行时的大任务根据枚举节点信息进行进一步拆分，实现了细粒度的负载均衡。实验表明，GMBE实现高达70.6倍的性能提升。
 
-综上所述，本文提出的三种算法对极大二分团枚举问题的性能提升方式进行了全面探索，将枚举介质扩展至GPU，并成功对包含百亿极大二分团规模的二分图实现了枚举。所述三种枚举方法的结合将成为未来的研究方向。
+综上所述，本文提出的三种算法对极大二分团枚举问题的性能提升方式进行了全面探索，将枚举介质扩展至GPU，并且在包含百亿极大二分团规模的二分图上实现极大二分团枚举。所述三种枚举方法的结合将成为未来的研究方向。
 
 % 在当今信息技术飞速发展的背景下，大规模数据的生成和积累已成常态。为了充分挖掘和利用数据中的有效关联信息，二分图结构被广泛应用于表征不同群体之间的联系，例如电子商务中用户与商品的购买关系。极大二分团作为二分图中的一类稠密子图，代表着数据集中那些紧密连接的群体，例如电子商务中同一组商品被一群用户批量购买的情况。通过识别并枚举二分图中的极大二分团，有助于揭示二分图中的规律或共同特征，例如电子商务中的刷单行为，进而深入探究群体行为的内部脉络和联系。
 
@@ -36,7 +36,8 @@ In the era of big data, bipartite graph structures are widely used to represent 
 
 (3) To address the limitation of parallel scalability due to the number of CPU cores, the paper proposes the GPU-based Maximal Biclique Enumeration Algorithm (GMBE). The algorithm includes three core techniques: stack-based iteration with node reuse, pruning method based on local neighborhood size, and load-aware task scheduling. The stack-based iteration with node reuse avoids dynamically allocating memory for new enumeration nodes by reusing memory from root nodes, reducing memory overhead. The pruning method based on local neighborhood size minimizes thread divergence issues by comparing a batch of local neighborhood sizes of vertices while pruning. The load-aware task scheduling further splits large tasks during runtime based on enumeration node information, achieving fine-grained load balancing. Experiments show that GMBE achieves a performance improvement of up to 70.6x.
 
-In summary, this paper comprehensively explores ways to improve the performance of maximal biclique enumeration problems and extends enumeration to GPUs, successfully enumerating bipartite graphs containing billions of maximal bicliques. The combination of the three enumeration methods will be a future research direction.
+In summary, this paper comprehensively explores ways to improve the performance of maximal biclique enumeration problems, extends enumeration to GPUs, and successfully enumerates all maximal bicliques on bipartite graphs containing billions of maximal bicliques. The combination of the three enumeration methods will be a future research direction.
+
 
 
 

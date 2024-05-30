@@ -1,0 +1,34 @@
+\begin{table} [H]
+	\centering    
+	\setlength{\abovecaptionskip}{0cm}  
+  \setlength{\belowcaptionskip}{-0.1cm}
+	\caption{AdaMBE在常规数据集上的整体运行时间评估（单位：秒）}      
+	\label{tbl:ada_time}
+	\setlength{\tabcolsep}{5pt}
+	\begin{center}
+				\normalsize{
+		\begin{tabular}{|c|c|c|c|c||c|c|}
+			\hline 
+
+      \textbf{数据集} & \textbf{AdaMBE} & \textbf{FMBE} & \textbf{PMBE} & \textbf{ooMBEA} & \textbf{ParAdaMBE} & \textbf{ParMBE} \\ \hline
+
+      UL	&\textbf{0.00336}	&0.03059	&0.01699	&\uline{0.00549}	&\textbf{0.00358}	&0.04363 \\
+      UF &	\textbf{0.044}	&\uline{0.189}	&0.266	&0.215	&\textbf{0.019}	&0.111 \\
+      Mti	&\textbf{0.583}	&14.092	&24.123	&\uline{2.871}	&\textbf{0.057}	&3.741 \\
+      TM	&\textbf{0.978}	&7.932	&19.165	&\uline{6.995}	&\textbf{0.447}	&1.371 \\      
+      AM & \textbf{5.0} & 123.6 & 199.3 & \uline{18.6} & \textbf{1.0} & 15.9 \\
+      WC & \textbf{2.7} & \uline{13.9} & 49.1 & 20.0 & \textbf{0.7} & 2.9 \\
+      YG & \textbf{3.3} & \uline{38.3} & 126.6 & 131.1 & \textbf{1.1} & 11.5 \\
+      SO & \textbf{80.3} & 3,705.7 & 10,933.2 & \uline{941.6} & \textbf{5.0} & 691.3 \\
+      Pa & \textbf{8.4} & \uline{14.0} & 23.4 & 40.1 & \textbf{4.0} & 10.0 \\
+      IM & \textbf{25.4} & 707.0 & 1,044.7 & \uline{214.5} & \textbf{2.5} & 130.8 \\
+      BX & \textbf{186} & \uline{5,934} & 13,234 & 9,452 & \textbf{46} & 892 \\
+      GH & \textbf{194} & 16,616 & 51,647 & \uline{9,639} & \textbf{40} & 2,412 \\
+      
+      \hline
+      
+		\end{tabular}
+				}
+	\end{center}
+  \vspace{-8pt}
+\end{table}

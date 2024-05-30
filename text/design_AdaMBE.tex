@@ -189,7 +189,7 @@
   
 % \end{example}
 
-\section{AdaMBE算法设计与实现}
+\section{AdaMBE算法}
 
 为了克服现有方法的不足，本节提出了基于局部计算子图的优化方法和基于位图的动态子图方法，以提升极大二分团枚举算法的效率。其中，基于局部计算子图的优化方法利用计算子图中的局部邻居信息，加速了极大二分团枚举算法的核心操作，同时减少了算法中的无效的顶点访问、集合运算以及枚举节点；而基于位图的动态子图方法利用位图，通过规则高效的位运算加速了小型计算子图中的集合运算，在集合运算性能和访存效率之间进行了良好的折中。最终，我们结合这两种技术，形成了高效的自适应极大二分团枚举算法AdaMBE。
 
@@ -339,7 +339,7 @@ BDS方法的实现细节，我们通过回答以下两个关键问题的方式�
 \end{enumerate}
 
 
-\subsection{AdaMBE算法}
+\subsection{AdaMBE算法设计}
 \label{subsec:ada_design_all}
 
 结合LCG方法和BDS方法，我们提出了一种自适应的极大二分团枚举算法，简称为AdaMBE（Adaptive Maximal Biclique Enumeration）。该算法的核心思想是根据极大二分团枚举的不同阶段，分别采用这两种方法：在原图和大计算子图中采用LCG方法，利用动态缓存的计算子图提高计算效率；而在小型计算子图中采用BDS方法，通过位图加速其中的集合运算操作。LCG方法和BDS方法能够在不同规模计算子图的场景下实现优势互补。此外，针对一个二分图 $G(U,V,E)$，AdaMBE会根据顶点的邻居大小对集合 $V$ 中的所有顶点进行初始排序。我们将在~\ref{subsec:ada_eval_sensitivity} 节通过实验展示其高效性。
@@ -408,30 +408,31 @@ BDS方法的实现细节，我们通过回答以下两个关键问题的方式�
 % \end{figure}
 
 
-\begin{figure} [H]
-	\centering
-  \vspace{0.05in}
-	\includegraphics[width=\linewidth]{adambe/overall_time}
-	\caption{AdaMBE在常规数据集上的整体运行时间评估 （对数形式）}
+% \begin{figure} [H]
+% 	\centering
+%   \vspace{0.05in}
+% 	\includegraphics[width=\linewidth]{adambe/overall_time}
+% 	\caption{AdaMBE在常规数据集上的整体运行时间评估 （对数形式）}
 
-	\label{fig:ada_overall_time}
-\end{figure}
+% 	\label{fig:ada_overall_time}
+% \end{figure}
 
+\input{text/tab_adambe_time}
 
+表~\ref{tbl:ada_time}展示了在常规数据集上，AdaMBE、ParAdaMBE以及主流极大二分团枚举算法的运行时间对比。为了方便比较，我们使用下划线标记了每个数据集中性能最优的串行竞争对手。实验结果显示，在不同的数据集下，我们的串行算法 AdaMBE 在性能上始终比最接近的串行竞争对手快 1.6 到 49.7 倍，而并行算法 ParAdaMBE 则比 ParMBE 算法快 2.5 到 137.8 倍。特别值得注意的是，在耗时最长的数据集 Github 上，AdaMBE 仅用时 194 秒完成任务，而FMBE、PMBE 和 ooMBEA 算法分别需要 16,616 秒、51,647 秒和 9,639 秒。同样，ParAdaMBE 在 40 秒内完成任务，而 ParMBE 则需要超过 2,412 秒。这清楚地表明，与现有方法相比，AdaMBE 算法和ParAdaMBE算法在处理耗时较长的数据集时具有明显的性能优势，为大规模数据集上的极大二分团枚举任务提供了强大的技术支持。
 
+% \begin{figure} [H]
+% 	\centering
+%    \vspace{0.05in}
+% 	\includegraphics[width=\linewidth]{adambe/overall_memory}
+% 	\caption{AdaMBE在常规数据集上的整体内存使用评估 （对数形式）}
 
-图~\ref{fig:ada_overall_time}展示了在常规数据集上，AdaMBE、ParAdaMBE以及主流极大二分团枚举算法的运行时间对比。实验结果显示，在不同的数据集下，我们的串行算法 AdaMBE 在性能上始终比最接近的串行竞争对手快 1.6 到 49.7 倍，而并行算法 ParAdaMBE 则比 ParMBE 算法快 2.5 到 137.8 倍。特别值得注意的是，在耗时最长的数据集 Github 上，AdaMBE 仅用时 194 秒完成任务，而FMBE、PMBE 和 ooMBEA 算法分别需要 16,616 秒、51,647 秒和 9,639 秒。同样，ParAdaMBE 在 40 秒内完成任务，而 ParMBE 则需要超过 2,412 秒。这清楚地表明，与现有方法相比，AdaMBE 算法和ParAdaMBE算法在处理耗时较长的数据集时具有明显的性能优势，为大规模数据集上的极大二分团枚举任务提供了强大的技术支持。
+% 	\label{fig:ada_overall_memory}
+% \end{figure}
 
-\begin{figure} [H]
-	\centering
-   \vspace{0.05in}
-	\includegraphics[width=\linewidth]{adambe/overall_memory}
-	\caption{AdaMBE在常规数据集上的整体内存使用评估 （对数形式）}
+\input{text/tab_adambe_memory}
 
-	\label{fig:ada_overall_memory}
-\end{figure}
-
-图~\ref{fig:ada_overall_memory}展示了在常规数据集上，AdaMBE、ParAdaMBE以及主流极大二分团枚举算法的内存使用对比。实验结果显示，与串行算法PMBE和ooMBEA相比，AdaMBE的内存使用平均分别降低了28.0\%和29.8\%。以数据集Github为例，AdaMBE的内存使用是32MB，而PMBE和ooMBEA的内存使用分别是271MB和431MB。这是因为它们需要额外的内存来存储 CDAG 索引结构~\cite{PMBE20} 和多个静态子图~\cite{ooMBE22}。与并行算法ParMBE相比，ParAdaMBE的内存消耗平均降低了29.7\%。除此之外，尽管FMBE算法的内存使用量低于AdaMBE，但其运行时间却远远落后于AdaMBE。因此，我们可以得出结论，我们的方法在保持高内存效率的同时取得了显著的性能改进。
+表~\ref{tbl:ada_memory}展示了在常规数据集上，AdaMBE、ParAdaMBE以及主流极大二分团枚举算法的内存使用对比。实验结果显示，与串行算法PMBE和ooMBEA相比，AdaMBE的内存使用平均分别降低了28.0\%和29.8\%。以数据集Github为例，AdaMBE的内存使用是32MB，而PMBE和ooMBEA的内存使用分别是271MB和431MB。这是因为它们需要额外的内存来存储 CDAG 索引结构~\cite{PMBE20} 和多个静态子图~\cite{ooMBE22}。与并行算法ParMBE相比，ParAdaMBE的内存消耗平均降低了29.7\%。除此之外，尽管FMBE算法的内存使用量低于AdaMBE，但其运行时间却远远落后于AdaMBE。因此，我们可以得出结论，我们的方法在保持高内存效率的同时取得了显著的性能改进。
 
 % 图8(b)显示，与串行算法如PMBE和OOMBEA相比，AdaMBE的内存使用率平均降低了28.0%和29.8%。与并行算法ParMBE和GMBE相比，ParAdaMBE的内存消耗平均分别降低了29.7%和96.4%。由于在GPU上为成千上万的线程预分配内存，GMBE需要最大的内存 [21]。虽然在内存使用方面FMBE略优于AdaMBE，但其运行时间明显落后于AdaMBE。因此，我们可以得出结论，我们的方法在保持高内存效率的同时取得了显著的性能改进。
 
@@ -447,14 +448,14 @@ BDS方法的实现细节，我们通过回答以下两个关键问题的方式�
   \subfloat[CebWiki数据集上的运行时间评估
 		% Evaluation on CebWiki. We report running time of all competitors excluding GMBE, which runs out of memory (OOM).
 		]{
-		\includegraphics[width=0.75\linewidth]{adambe/cebwiki}
+		\includegraphics[width=0.6\linewidth]{adambe/cebwiki}
 		\label{fig:ada_overall_cebwiki}
 	}
 	\\
   \subfloat[TVTropes数据集上48小时内算法输出的极大二分团数量
 		% Evaluation on TVTropes. As only AdaMBE and \parpname{} complete within 48 hours, we report the maximal biclique count of competitors at 48 hours.
 		]{
-		\includegraphics[width=0.75\linewidth]{adambe/tvtropes}
+		\includegraphics[width=0.6\linewidth]{adambe/tvtropes}
 		\label{fig:ada_overall_tvtropes}
 	}
 
@@ -495,7 +496,7 @@ BDS方法的实现细节，我们通过回答以下两个关键问题的方式�
 \begin{figure} [H]
 	\centering
   % \vspace{0.05in}
-	\includegraphics[width=0.75\linewidth]{adambe/breakdown_time}
+	\includegraphics[width=0.7\linewidth]{adambe/breakdown_time}
 	\caption{BDS、LCG方法的运行时间分解评估（对数形式）}
 
 	\label{fig:ada_breakdown_time}
@@ -504,7 +505,7 @@ BDS方法的实现细节，我们通过回答以下两个关键问题的方式�
 \begin{figure} [H]
 	\centering
   % \vspace{0.05in}
-	\includegraphics[width=0.75\linewidth]{adambe/breakdown_memory}
+	\includegraphics[width=0.7\linewidth]{adambe/breakdown_memory}
 	% \vspace{-0.1in}
 	\caption{BDS、LCG方法的内存使用分解评估（对数形式）}
 
@@ -519,7 +520,7 @@ BDS方法的实现细节，我们通过回答以下两个关键问题的方式�
 \begin{figure} [t]
 	\centering
   % \vspace{0.05in}
-	\includegraphics[width=0.75\linewidth]{adambe/breakdown_design2}
+	\includegraphics[width=0.7\linewidth]{adambe/breakdown_design2}
   %  \vspace{-0.1in}
 	\caption{LCG方法的节点剪枝效率}
 	\vspace{-0.1in}
@@ -542,7 +543,7 @@ BDS方法的实现细节，我们通过回答以下两个关键问题的方式�
 \begin{figure} [t]
 	\centering
   % \vspace{0.05in}
-	\includegraphics[width=0.75\linewidth]{adambe/breakdown_design1}
+	\includegraphics[width=0.7\linewidth]{adambe/breakdown_design1}
   % \vspace{0.05in}
 	 
 	\caption{BDS方法下的运行时间分解}

@@ -43,7 +43,14 @@
     $\alpha, \delta, \beta$ & 对于一棵极大二分团枚举树，$\alpha$ 表示枚举树中产生的极大二分团的数量，$\delta$ 表示枚举树中产生的其他二分团的数量，$\beta$ 表示枚举树中二分团的总数量。可知 $\beta = \alpha + \delta$。 \\ \hline
 \end{longtable}
 
-  二分图中的极大二分团枚举问题是在一个无向无权二分图$G(U,V,E)$中的特定的图挖掘问题。随后，我们正式定义二分团、极大二分团以及极大二分团枚举问题。
+  二分图中的极大二分团枚举问题是在一个无向无权二分图$G(U,V,E)$中的特定的图挖掘问题。随后，我们定义二分图、二分团、极大二分团以及极大二分团枚举问题。
+
+  \begin{definition}
+    \textbf{（二分图）} 二分图（Bipartite graph）$G(U,V,E)$ 是一种特殊的图结构，包含两个不相交的顶点集合$U$和$V$，以及连接这些顶点的边集合$E$。在二分图中，边集$E$中的每条边连接的两个顶点分属于不同的顶点集合，即$E \subseteq U \times V$。
+    % 是二分图$G(U,V,E)$中的稠密二分子图$(L,R,E')$。其中$L\subseteq U$， $R\subseteq V$， $E' = L \times R \subseteq E$。为了方便，下文中我们直接用顶点集对$(L,R)$表示二分团。
+  \end{definition}
+
+
 
 \begin{definition}
   \textbf{（二分团）} 二分团（Biclique）是二分图$G(U,V,E)$中的稠密二分子图$(L,R,E')$。其中$L\subseteq U$， $R\subseteq V$， $E' = L \times R \subseteq E$。为了方便，下文中我们直接用顶点集对$(L,R)$表示二分团。
@@ -111,7 +118,7 @@
 
 \subsubsection{基于集合枚举树的极大二分团枚举基本算法}
 \label{subsec:algorithm}
-  结合集合枚举树的定义，我们给出了基于集合枚举树的极大二分团枚举基本算法。
+  结合上一节对集合枚举树的定义与描述，我们给出了基于集合枚举树的极大二分团枚举基本算法。
 
 \begin{algorithm}[H]
     \begin{algorithmic}[1]

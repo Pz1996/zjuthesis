@@ -1,4 +1,4 @@
-\chapter{基于GPU的极大二分团枚举并行实现}
+\chapter{基于GPU的极大二分团枚举并行算法}
 \label{ch:gmbe}
 
 针对现有极大二分团枚举算法在并行扩展性方面受限于CPU计算核心数量的问题，本章引入了具有大量计算核心的GPU作为计算资源，以加速极大二分团枚举过程。本章介绍了现代GPU的硬件架构和软件编程模型。同时，本章%整理了GPU加速图计算的相关工作，并
@@ -105,7 +105,7 @@ GPU，即图形处理单元（Graphics Processing Unit），最初是专门用�
 % 然而，如图~\ref{fig:gmbe_load_example}所示，如果简单采用我们提出的GMBE算法，将每个枚举树分配给一个线程束，将会导致大量资源浪费，影响性能。具体来说，该算法总共运行时间为1,822秒。当程序运行至20\%时（即364秒），活跃的流处理器仅有22个，占总数108个的20\%。这意味着在整个运行过程中，超过80\%的流处理器（86个SMs / 共108个SMs）将耗费80\%的运行时间（1,458秒 / 共1,822秒）等待最慢的一个子枚举树的计算。因此，对于MBE算法，有必要在更细粒度上平衡工作负载。
 
 
-\section{GMBE算法设计与实现}
+\section{GMBE算法}
 为了应对GPU上高效实现极大二分团枚举时所面临的内存短缺、线程分歧以及负载不均等挑战，本节提出了一系列对应的解决方案。这些解决方案包括基于枚举节点重用的迭代方法、局部邻居数量感知的剪枝方法以及负载感知的任务调度方法。最终，通过结合这些技术，我们提出了高效的GPU极大二分团枚举算法 GMBE。
 
 
@@ -289,7 +289,7 @@ GPU，即图形处理单元（Graphics Processing Unit），最初是专门用�
 
 \input{text/alg_gmbe_full}
 
-\subsection{GMBE算法}
+\subsection{GMBE算法设计}
 
 基于以上所述技术要点，我们提出了基于GPU的高效极大二分团枚举算法GMBE。除了前文提及的主要技术要点之外，接下来将详细描述GMBE算法的具体实现细节。
 
@@ -321,16 +321,18 @@ $\Delta(V)$， 和 $\Delta_2(V)$。由于二分图中$U$和$V$是对称的，在
 
 \subsection{整体评估}
 
-图~\ref{fig:gmbe_exp_overall} 展示了 GMBE 在真实数据集上与最先进的极大二分团枚举算法的运行时间对比结果。实验结果表明，由于 GMBE 能够高效利用 GPU 上的大量计算资源，因此在所有测试数据集上，GMBE 在 CPU 上比任何其他竞争对手快 3.5倍--69.8倍。具体而言，在单个 A100 GPU 上，GMBE 在 ActorMovies 数据集上的表现超过了 96 核 CPU 上最先进的并行极大二分团枚举算法 ParMBE 高达 70.6倍。与所有在 Github 上花费超过 40 分钟枚举所有极大二分团的现有极大二分团枚举算法相比，GMBE 仅需 132 秒，因此对实际大数据集上的极大二分团枚举是非常有帮助的。此外，我们使用 NVIDIA Nsight Compute 软件~\cite{Nsight} 对 GMBE 进行性能分析。分析结果显示，所有真实数据集上的平均 线程束 执行效率为 64\%，内存利用率为 12\%。这些结果可以归因于极大二分团枚举问题中固有的不规则性~\cite{Irregularity12}。
+\input{text/tab_gmbe_time}
 
-\begin{figure} [t]
-  \center
-    \vspace{0.15in}
-		\includegraphics[width=\linewidth]{gmbe/overall}
-    % \vspace{0.05in}
-	\caption{GMBE整体运行时间评估（对数形式）}
-	\label{fig:gmbe_exp_overall}
-\end{figure}
+表~\ref{tbl:gmbe_time} 展示了 GMBE 在真实数据集上与最先进的极大二分团枚举算法的运行时间对比结果。实验结果表明，由于 GMBE 能够高效利用 GPU 上的大量计算资源，因此在所有测试数据集上，GMBE 在 CPU 上比任何其他竞争对手快 3.5倍--69.8倍。具体而言，在单个 A100 GPU 上，GMBE 在 ActorMovies 数据集上的表现超过了 96 核 CPU 上最先进的并行极大二分团枚举算法 ParMBE 高达 70.6倍。与所有在 Github 上花费超过 40 分钟枚举所有极大二分团的现有极大二分团枚举算法相比，GMBE 仅需 132 秒，因此对实际大数据集上的极大二分团枚举是非常有帮助的。此外，我们使用 NVIDIA Nsight Compute 软件~\cite{Nsight} 对 GMBE 进行性能分析。分析结果显示，所有真实数据集上的平均 线程束 执行效率为 64\%，内存利用率为 12\%。这些结果可以归因于极大二分团枚举问题中固有的不规则性~\cite{Irregularity12}。
+
+% \begin{figure} [t]
+%   \center
+%     \vspace{0.15in}
+% 		\includegraphics[width=\linewidth]{gmbe/overall}
+%     % \vspace{0.05in}
+% 	\caption{GMBE整体运行时间评估（对数形式）}
+% 	\label{fig:gmbe_exp_overall}
+% \end{figure}
 
 
 
